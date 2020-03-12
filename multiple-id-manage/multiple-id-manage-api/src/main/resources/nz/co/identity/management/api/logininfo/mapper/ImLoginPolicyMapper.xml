@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.logininfo.mapper.ImLoginPolicyMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.logininfo.entity.ImLoginPolicy">
+		<id column="login_policy_id" jdbcType="VARCHAR" property="loginPolicyId" />
+		<result column="login_policy_code" jdbcType="VARCHAR" property="loginPolicyCode" />
+		<result column="company_code" jdbcType="VARCHAR" property="companyCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="password_expire_term" jdbcType="NUMERIC"
+			property="passwordExpireTerm" />
+		<result column="password_max_failure" jdbcType="NUMERIC"
+			property="passwordMaxFailure" />
+		<result column="password_failure_reset_term" jdbcType="NUMERIC"
+			property="passwordFailureResetTerm" />
+		<result column="lockout_term" jdbcType="NUMERIC" property="lockoutTerm" />
+		<result column="max_session_limit" jdbcType="NUMERIC" property="maxSessionLimit" />
+		<result column="permit_time" jdbcType="VARCHAR" property="permitTime" />
+		<result column="permit_domain" jdbcType="VARCHAR" property="permitDomain" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		login_policy_id, login_policy_code, company_code,
+		active_start_time, active_end_time,
+		password_expire_term,
+		password_max_failure,
+		password_failure_reset_term, lockout_term,
+		max_session_limit, permit_time, permit_domain, created_time,
+		created_user, updated_time,
+		updated_user, deleted_flg, version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+	    where
+        <if test="loginPolicy.loginPolicyCode != null">
+            login_policy_code like CONCAT('%',
+            #{loginPolicy.loginPolicyCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="loginPolicy.companyCode != null">
+            company_code like CONCAT('%',
+            #{loginPolicy.companyCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="loginPolicy.activeEndTime != null">
+            active_start_time &lt;=
+            #{loginPolicy.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="loginPolicy.activeStartTime != null">
+            active_end_time &gt;=
+            #{loginPolicy.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="loginPolicy.passwordExpireTerm != null">
+            password_expire_term =
+            #{loginPolicy.passwordExpireTerm,jdbcType=NUMERIC} and
+        </if>
+        <if test="loginPolicy.passwordExpireTerm != null">
+            password_expire_term =
+            #{loginPolicy.passwordExpireTerm,jdbcType=NUMERIC} and
+        </if>
+        <if test="loginPolicy.passwordMaxFailure != null">
+            password_max_failure =
+            #{loginPolicy.passwordMaxFailure,jdbcType=NUMERIC} and
+        </if>
+        <if test="loginPolicy.passwordFailureResetTerm != null">
+            password_failure_reset_term =
+            #{loginPolicy.passwordFailureResetTerm,jdbcType=NUMERIC} and
+        </if>
+        <if test="loginPolicy.lockoutTerm != null">
+            lockout_term =
+            #{loginPolicy.lockoutTerm,jdbcType=NUMERIC}
+            and
+        </if>
+        <if test="loginPolicy.maxSessionLimit != null">
+            max_session_limit =
+            #{loginPolicy.maxSessionLimit,jdbcType=NUMERIC} and
+        </if>
+        <if test="loginPolicy.permitTime != null">
+            permit_time like CONCAT('%',
+            #{loginPolicy.permitTime,jdbcType=VARCHAR},'%')
+            and
+        </if>
+        <if test="loginPolicy.permitDomain != null">
+            permit_domain like CONCAT('%',
+            #{loginPolicy.permitDomain,jdbcType=VARCHAR},'%') and
+        </if>
+        deleted_flg = 0
+	</sql>   
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_login_policy
+		where login_policy_id =
+		#{loginPolicyId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_login_policy
+		where
+		login_policy_code =
+		#{loginPolicyCode,jdbcType=VARCHAR}
+	</select>
+	<select id="selectByLoginPolicyCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_login_policy
+		where login_policy_code =
+		#{loginPolicyCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+		order by
+		updated_time desc,created_time desc
+	</select>
+	<select id="selectLoginPolicy" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_login_policy
+		<include refid="Base_Search_Condition" />
+		<if test="sort != null">
+        order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByLoginPolicy" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_login_policy
+        <include refid="Base_Search_Condition" />
+    </select>
+	<delete id="deleteByLoginPolicyIdByVersion">
+		delete from
+		im_login_policy
+		where login_policy_id =
+		#{loginPolicyId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImLoginPolicy">
+		insert into im_login_policy (login_policy_id,
+		login_policy_code,
+		company_code,
+		active_start_time, active_end_time,
+		password_expire_term,
+		password_max_failure,
+		password_failure_reset_term,
+		lockout_term, max_session_limit,
+		permit_time,
+		permit_domain, created_time, created_user,
+		deleted_flg,
+		version_no)
+		values
+		(#{loginPolicyId,jdbcType=VARCHAR},
+		#{loginPolicyCode,jdbcType=VARCHAR}, #{companyCode,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{passwordExpireTerm,jdbcType=NUMERIC},
+		#{passwordMaxFailure,jdbcType=NUMERIC},
+		#{passwordFailureResetTerm,jdbcType=NUMERIC},
+		#{lockoutTerm,jdbcType=NUMERIC}, #{maxSessionLimit,jdbcType=NUMERIC},
+		#{permitTime,jdbcType=VARCHAR},
+		#{permitDomain,jdbcType=VARCHAR},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC},
+		#{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_login_policy
+		<set>
+			<if test="loginPolicy.loginPolicyCode != null">
+				login_policy_code =
+				#{loginPolicy.loginPolicyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.companyCode != null">
+				company_code =
+				#{loginPolicy.companyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.activeStartTime != null">
+				active_start_time =
+				#{loginPolicy.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loginPolicy.activeEndTime != null">
+				active_end_time =
+				#{loginPolicy.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loginPolicy.passwordExpireTerm != null">
+				password_expire_term =
+				#{loginPolicy.passwordExpireTerm,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.passwordMaxFailure != null">
+				password_max_failure =
+				#{loginPolicy.passwordMaxFailure,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.passwordFailureResetTerm != null">
+				password_failure_reset_term =
+				#{loginPolicy.passwordFailureResetTerm,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.lockoutTerm != null">
+				lockout_term =
+				#{loginPolicy.lockoutTerm,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.maxSessionLimit != null">
+				max_session_limit =
+				#{loginPolicy.maxSessionLimit,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.permitTime != null">
+				permit_time = #{loginPolicy.permitTime,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.permitDomain != null">
+				permit_domain =
+				#{loginPolicy.permitDomain,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.createdTime != null">
+				created_time =
+				#{loginPolicy.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loginPolicy.createdUser != null">
+				created_user =
+				#{loginPolicy.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.updatedTime != null">
+				updated_time =
+				#{loginPolicy.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loginPolicy.updatedUser != null">
+				updated_user =
+				#{loginPolicy.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPolicy.deletedFlg != null">
+				deleted_flg = #{loginPolicy.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="loginPolicy.versionNo != null">
+				version_no = #{loginPolicy.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where login_policy_id = #{loginPolicy.loginPolicyId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no =
+			#{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_login_policy
+		set login_policy_code =
+		#{loginPolicy.loginPolicyCode,jdbcType=VARCHAR},
+		company_code =
+		#{loginPolicy.companyCode,jdbcType=VARCHAR},
+		active_start_time =
+		#{loginPolicy.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{loginPolicy.activeEndTime,jdbcType=TIMESTAMP},
+		password_expire_term =
+		#{loginPolicy.passwordExpireTerm,jdbcType=NUMERIC},
+		password_max_failure =
+		#{loginPolicy.passwordMaxFailure,jdbcType=NUMERIC},
+		password_failure_reset_term =
+		#{loginPolicy.passwordFailureResetTerm,jdbcType=NUMERIC},
+		lockout_term
+		=
+		#{loginPolicy.lockoutTerm,jdbcType=NUMERIC},
+		max_session_limit =
+		#{loginPolicy.maxSessionLimit,jdbcType=NUMERIC},
+		permit_time =
+		#{loginPolicy.permitTime,jdbcType=VARCHAR},
+		permit_domain =
+		#{loginPolicy.permitDomain,jdbcType=VARCHAR},
+		updated_time =
+		#{loginPolicy.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{loginPolicy.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{loginPolicy.versionNo,jdbcType=NUMERIC}
+		where login_policy_id =
+		#{loginPolicy.loginPolicyId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

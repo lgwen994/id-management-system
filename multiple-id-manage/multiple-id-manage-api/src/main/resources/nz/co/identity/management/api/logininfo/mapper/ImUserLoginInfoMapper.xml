@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.logininfo.mapper.ImUserLoginInfoMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.logininfo.entity.ImUserLoginInfo">
+		<id column="user_login_info_id" jdbcType="VARCHAR" property="userLoginInfoId" />
+		<result column="user_login_info_code" jdbcType="VARCHAR"
+			property="userLoginInfoCode" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="login_id" jdbcType="VARCHAR" property="loginId" />
+		<result column="company_code" jdbcType="VARCHAR" property="companyCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		user_login_info_id, user_login_info_code, user_id,
+		login_id, company_code,
+		active_start_time,
+		active_end_time,
+		created_time, created_user, updated_time, updated_user, deleted_flg,
+		version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+        where
+        <if test="userLoginInfo.userLoginInfoCode != null">
+            user_login_info_code like CONCAT('%',
+            #{userLoginInfo.userLoginInfoCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userLoginInfo.userId != null">
+            user_id =
+            #{userLoginInfo.userId,jdbcType=VARCHAR} and
+        </if>
+        <if test="userLoginInfo.loginId != null">
+            login_id =
+            #{userLoginInfo.loginId,jdbcType=VARCHAR} and
+        </if>
+        <if test="userLoginInfo.companyCode != null">
+            company_code like CONCAT('%',
+            #{userLoginInfo.companyCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userLoginInfo.activeEndTime != null">
+            active_start_time &lt;=
+            #{userLoginInfo.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="userLoginInfo.activeStartTime != null">
+            active_end_time &gt;=
+            #{userLoginInfo.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        deleted_flg = 0
+    </sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_login_info
+		where user_login_info_id =
+		#{userLoginInfoId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectByUserLoginInfoCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_login_info
+		where user_login_info_code =
+		#{userLoginInfoCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+		order by
+		updated_time desc, created_time desc
+	</select>
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		max(version_no)
+		from im_user_login_info
+		where
+		user_login_info_code = #{userLoginInfoCode,jdbcType=VARCHAR}
+	</select>
+	<select id="selectByLoginIdAndCompanyCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_login_info
+		where login_id =
+		#{loginId,jdbcType=VARCHAR}
+		and company_code =
+		#{companyCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectByUserId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_login_info
+		where user_id =
+		#{userId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectUserLoginInfo" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_login_info
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+        order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByUserLoginInfo" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_user_login_info
+        <include refid="Base_Search_Condition" />
+    </select>
+	<delete id="deleteByLoginIdAndCompanyCode" parameterType="java.lang.String">
+		delete
+		from
+		im_user_login_info
+		where login_id = #{loginId,jdbcType=VARCHAR}
+		and company_code = #{companyCode,jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteByUserLoginInfoIdByVersion">
+		delete from
+		im_user_login_info
+		where
+		user_login_info_id =
+		#{userLoginInfoId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImUserLoginInfo">
+		insert into im_user_login_info (user_login_info_id,
+		user_login_info_code,
+		user_id, login_id, company_code,
+		active_start_time, active_end_time, created_time,
+		created_user,
+		deleted_flg, version_no)
+		values
+		(#{userLoginInfoId,jdbcType=VARCHAR},
+		#{userLoginInfoCode,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{loginId,jdbcType=VARCHAR}, #{companyCode,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{createdTime,jdbcType=TIMESTAMP},
+		#{createdUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC}, #{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_user_login_info
+		<set>
+			<if test="userLoginInfo.userLoginInfoCode != null">
+				user_login_info_code =
+				#{userLoginInfo.userLoginInfoCode,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.userId != null">
+				user_id = #{userLoginInfo.userId,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.loginId != null">
+				login_id = #{userLoginInfo.loginId,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.companyCode != null">
+				company_code =
+				#{userLoginInfo.companyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.activeStartTime != null">
+				active_start_time =
+				#{userLoginInfo.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userLoginInfo.activeEndTime != null">
+				active_end_time =
+				#{userLoginInfo.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userLoginInfo.createdTime != null">
+				created_time =
+				#{userLoginInfo.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userLoginInfo.createdUser != null">
+				created_user =
+				#{userLoginInfo.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.updatedTime != null">
+				updated_time =
+				#{userLoginInfo.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userLoginInfo.updatedUser != null">
+				updated_user =
+				#{userLoginInfo.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="userLoginInfo.deletedFlg != null">
+				deleted_flg =
+				#{userLoginInfo.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="userLoginInfo.versionNo != null">
+				version_no = #{userLoginInfo.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where user_login_info_id =
+		#{userLoginInfo.userLoginInfoId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no =
+			#{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_user_login_info
+		set user_login_info_code =
+		#{userLoginInfo.userLoginInfoCode,jdbcType=VARCHAR},
+		user_id =
+		#{userLoginInfo.userId,jdbcType=VARCHAR},
+		login_id =
+		#{userLoginInfo.loginId,jdbcType=VARCHAR},
+		company_code =
+		#{userLoginInfo.companyCode,jdbcType=VARCHAR},
+		active_start_time =
+		#{userLoginInfo.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{userLoginInfo.activeEndTime,jdbcType=TIMESTAMP},
+		updated_time =
+		#{userLoginInfo.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{userLoginInfo.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{userLoginInfo.versionNo,jdbcType=NUMERIC}
+		where user_login_info_id =
+		#{userLoginInfo.userLoginInfoId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

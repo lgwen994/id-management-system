@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.orguserinfo.mapper.ImCompanyNameMstMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.orguserinfo.entity.ImCompanyNameMst">
+		<id column="company_name_id" jdbcType="VARCHAR" property="companyNameId" />
+		<result column="company_id" jdbcType="VARCHAR" property="companyId" />
+		<result column="locale" jdbcType="VARCHAR" property="locale" />
+		<result column="company_name" jdbcType="VARCHAR" property="companyName" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		company_name_id, company_id, locale, company_name,
+		active_start_time, active_end_time,
+		created_time, created_user,
+		updated_time, updated_user, deleted_flg,
+		version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+	    where
+        <if test="companyNameMst.companyId != null">
+            company_id = #{companyNameMst.companyId,jdbcType=VARCHAR}
+            and
+        </if>
+        <if test="companyNameMst.locale != null">
+            locale like CONCAT('%',
+            #{companyNameMst.locale,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="companyNameMst.companyName != null">
+            company_name like CONCAT('%',
+            #{companyNameMst.companyName,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="companyNameMst.activeEndTime != null">
+            active_start_time &lt;=
+            #{companyNameMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="companyNameMst.activeStartTime != null">
+            active_end_time &gt;=
+            #{companyNameMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        deleted_flg = 0
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_name_mst
+		where company_name_id =
+		#{companyNameId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByCompanyIdByLocale" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_name_mst
+		where company_id =
+		#{companyId,jdbcType=VARCHAR}
+		and locale = #{locale,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByCompanyId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_name_mst
+		where company_id =
+		#{companyId,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByCompanyCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_name_mst
+		where company_id in (select company_id from
+		im_company_mst where company_code = #{companyCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0)
+		and
+		deleted_flg = 0
+		order by updated_time
+		desc,created_time desc
+	</select>
+
+	<select id="selectByCompanyNameMst" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_name_mst
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByCompanyNameMst" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_company_name_mst
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<delete id="deleteByCompanyId" parameterType="java.lang.String">
+		delete from
+		im_company_name_mst
+		where company_name_id =
+		#{companyNameId,jdbcType=VARCHAR}
+	</delete>
+
+	<delete id="deleteByCompanyIdByLocale" parameterType="java.lang.String">
+		delete from
+		im_company_name_mst
+		where company_id = #{companyId,jdbcType=VARCHAR}
+		and locale
+		= #{locale,jdbcType=VARCHAR}
+	</delete>
+
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.orguserinfo.entity.ImCompanyNameMst">
+		insert into im_company_name_mst (company_name_id,
+		company_id, locale,
+		company_name, active_start_time, active_end_time,
+		created_time, created_user, updated_time,
+		updated_user, deleted_flg,
+		version_no
+		)
+		values (#{companyNameId,jdbcType=VARCHAR},
+		#{companyId,jdbcType=VARCHAR},
+		#{locale,jdbcType=VARCHAR},
+		#{companyName,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{updatedTime,jdbcType=TIMESTAMP},
+		#{updatedUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC}, #{versionNo,jdbcType=NUMERIC}
+		)
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_company_name_mst
+		<set>
+			<if test="companyNameMst.companyId != null">
+				company_id =
+				#{companyNameMst.companyId,jdbcType=VARCHAR},
+			</if>
+			<if test="companyNameMst.locale != null">
+				locale = #{companyNameMst.locale,jdbcType=VARCHAR},
+			</if>
+			<if test="companyNameMst.companyName != null">
+				company_name =
+				#{companyNameMst.companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="companyNameMst.activeStartTime != null">
+				active_start_time =
+				#{companyNameMst.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyNameMst.activeEndTime != null">
+				active_end_time =
+				#{companyNameMst.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyNameMst.createdTime != null">
+				created_time =
+				#{companyNameMst.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyNameMst.createdUser != null">
+				created_user =
+				#{companyNameMst.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="companyNameMst.updatedTime != null">
+				updated_time =
+				#{companyNameMst.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyNameMst.updatedUser != null">
+				updated_user =
+				#{companyNameMst.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="companyNameMst.deletedFlg != null">
+				deleted_flg =
+				#{companyNameMst.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="companyNameMst.versionNo != null">
+				version_no =
+				#{companyNameMst.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where company_name_id =
+		#{companyNameMst.companyNameId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and version_no =
+			#{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_company_name_mst
+		set company_id =
+		#{companyNameMst.companyId,jdbcType=VARCHAR},
+		locale =
+		#{companyNameMst.locale,jdbcType=VARCHAR},
+		company_name =
+		#{companyNameMst.companyName,jdbcType=VARCHAR},
+		active_start_time =
+		#{companyNameMst.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{companyNameMst.activeEndTime,jdbcType=TIMESTAMP},
+		updated_time =
+		#{companyNameMst.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{companyNameMst.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{companyNameMst.versionNo,jdbcType=NUMERIC}
+		where company_name_id =
+		#{companyNameMst.companyNameId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>
