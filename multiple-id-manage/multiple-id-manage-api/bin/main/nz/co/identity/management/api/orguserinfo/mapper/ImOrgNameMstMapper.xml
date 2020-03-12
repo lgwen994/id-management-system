@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.orguserinfo.mapper.ImOrgNameMstMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.orguserinfo.entity.ImOrgNameMst">
+		<id column="org_name_id" jdbcType="VARCHAR" property="orgNameId" />
+		<result column="org_id" jdbcType="VARCHAR" property="orgId" />
+		<result column="locale" jdbcType="VARCHAR" property="locale" />
+		<result column="org_name" jdbcType="VARCHAR" property="orgName" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		org_name_id, org_id, locale, org_name,
+		active_start_time,
+		active_end_time,
+		created_time,
+		created_user,
+		updated_time, updated_user,
+		deleted_flg, version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+	    where
+        <if test="orgNameMst.orgId != null">
+            org_id = #{orgNameMst.orgId,jdbcType=VARCHAR}
+            and
+        </if>
+        <if test="orgNameMst.locale != null">
+            locale like CONCAT('%',
+            #{orgNameMst.locale,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="orgNameMst.orgName != null">
+            org_name like CONCAT('%',
+            #{orgNameMst.orgName,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="orgNameMst.activeEndTime != null">
+            active_start_time &lt;=
+            #{orgNameMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="orgNameMst.activeStartTime != null">
+            active_end_time &gt;=
+            #{orgNameMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        deleted_flg = 0
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_org_name_mst
+		where org_name_id =
+		#{orgNameId,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByOrgIdByLocale" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_org_name_mst
+		where org_id = #{orgId,jdbcType=VARCHAR}
+		and
+		locale = #{locale,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByOrgId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_org_name_mst
+		where org_id = #{orgId,jdbcType=VARCHAR}
+		<!-- and active_start_time < #{SYSDATE,jdbcType=TIMESTAMP} and active_end_time 
+			> #{SYSDATE,jdbcType=TIMESTAMP} -->
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByOrgCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_org_name_mst
+		where org_id in (select org_id from
+		im_org_mst
+		where org_code = #{orgCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0)
+		and
+		deleted_flg = 0
+		order by updated_time
+		desc,created_time desc
+	</select>
+
+	<select id="selectByOrgNameMst" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_org_name_mst
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByOrgNameMst" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_org_name_mst
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<delete id="deleteByOrgId" parameterType="java.lang.String">
+		delete from
+		im_org_name_mst
+		where org_id = #{orgId,jdbcType=VARCHAR}
+	</delete>
+
+	<delete id="deleteByOrgIdByLocale" parameterType="java.lang.String">
+		delete from
+		im_org_name_mst
+		where org_id = #{orgId,jdbcType=VARCHAR}
+		and locale
+		=
+		#{locale,jdbcType=VARCHAR}
+	</delete>
+
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.orguserinfo.entity.ImOrgNameMst">
+		insert into im_org_name_mst (org_name_id, org_id,
+		locale,
+		org_name, active_start_time, active_end_time,
+		created_time,
+		created_user, updated_time,
+		updated_user, deleted_flg, version_no
+		)
+		values (#{orgNameId,jdbcType=VARCHAR}, #{orgId,jdbcType=VARCHAR},
+		#{locale,jdbcType=VARCHAR},
+		#{orgName,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{updatedTime,jdbcType=TIMESTAMP},
+		#{updatedUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC}, #{versionNo,jdbcType=NUMERIC}
+		)
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_org_name_mst
+		<set>
+			<if test="orgNameMst.orgId != null">
+				org_id = #{orgNameMst.orgId,jdbcType=VARCHAR},
+			</if>
+			<if test="orgNameMst.locale != null">
+				locale = #{orgNameMst.locale,jdbcType=VARCHAR},
+			</if>
+			<if test="orgNameMst.orgName != null">
+				org_name = #{orgNameMst.orgName,jdbcType=VARCHAR},
+			</if>
+			<if test="orgNameMst.activeStartTime != null">
+				active_start_time =
+				#{orgNameMst.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orgNameMst.activeEndTime != null">
+				active_end_time =
+				#{orgNameMst.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orgNameMst.createdTime != null">
+				created_time =
+				#{orgNameMst.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orgNameMst.createdUser != null">
+				created_user =
+				#{orgNameMst.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="orgNameMst.updatedTime != null">
+				updated_time =
+				#{orgNameMst.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orgNameMst.updatedUser != null">
+				updated_user =
+				#{orgNameMst.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="orgNameMst.deletedFlg != null">
+				deleted_flg = #{orgNameMst.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="orgNameMst.versionNo != null">
+				version_no = #{orgNameMst.versionNo,jdbcType=NUMERIC}
+			</if>
+		</set>
+		where org_name_id = #{orgNameMst.orgNameId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no = #{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_org_name_mst
+		set org_id =
+		#{orgNameMst.orgId,jdbcType=VARCHAR},
+		locale =
+		#{orgNameMst.locale,jdbcType=VARCHAR},
+		org_name =
+		#{orgNameMst.orgName,jdbcType=VARCHAR},
+		active_start_time =
+		#{orgNameMst.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{orgNameMst.activeEndTime,jdbcType=TIMESTAMP},
+		updated_time =
+		#{orgNameMst.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{orgNameMst.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{orgNameMst.versionNo,jdbcType=NUMERIC}
+		where org_name_id =
+		#{orgNameMst.orgNameId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

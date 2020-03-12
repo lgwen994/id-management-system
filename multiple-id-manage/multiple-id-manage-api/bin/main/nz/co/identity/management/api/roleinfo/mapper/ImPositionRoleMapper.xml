@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.roleinfo.mapper.ImPositionRoleMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.roleinfo.entity.ImPositionRole">
+		<id column="position_role_id" jdbcType="VARCHAR" property="positionRoleId" />
+		<result column="position_role_code" jdbcType="VARCHAR"
+			property="positionRoleCode" />
+		<result column="position_id" jdbcType="VARCHAR" property="positionId" />
+		<result column="role_id" jdbcType="VARCHAR" property="roleId" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<resultMap id="BaseResultInformationMap"
+		type="nz.co.identity.management.api.roleinfo.entity.ImPositionRole">
+		<id column="role_id" jdbcType="VARCHAR" property="roleId" />
+		<result column="role_code" jdbcType="VARCHAR" property="roleCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="role_type" jdbcType="VARCHAR" property="roleType" />
+		<result column="role_comment" jdbcType="VARCHAR" property="roleComment" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+		<result column="locale" jdbcType="VARCHAR" property="locale" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="org_id" jdbcType="VARCHAR" property="orgId" />
+		<result column="title_id" jdbcType="VARCHAR" property="titleId" />
+		<result column="concurrent_flg" jdbcType="NUMERIC" property="concurrentFlg" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		position_role_id, position_role_code, position_id, role_id,
+		active_start_time,
+		active_end_time,
+		created_time, created_user,
+		updated_time, updated_user, deleted_flg, version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+		where
+		<if test="positionRole.positionRoleCode != null">
+			position_role_code like CONCAT('%',
+			#{positionRole.positionRoleCode,jdbcType=VARCHAR}, '%')
+			and
+		</if>
+		<if test="positionRole.positionId != null">
+			position_id = #{positionRole.positionId,jdbcType=VARCHAR}
+			and
+		</if>
+		<if test="positionRole.roleId != null">
+			role_id = #{positionRole.roleId,jdbcType=VARCHAR} and
+		</if>
+		<if test="positionRole.activeEndTime != null">
+			active_start_time &lt;=
+			#{positionRole.activeEndTime,jdbcType=TIMESTAMP} and
+		</if>
+		<if test="positionRole.activeStartTime != null">
+			active_end_time &gt;=
+			#{positionRole.activeStartTime,jdbcType=TIMESTAMP} and
+		</if>
+		deleted_flg = 0
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position_role
+		where position_role_id =
+		#{positionRoleId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+
+	<select id="selectPositionRole" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position_role
+		<include refid="Base_Search_Condition" />
+		<if test="sort != null">
+			order by
+			<foreach item="item" collection="sort" separator=",">
+				${item.property} ${item.direction}
+			</foreach>
+		</if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+
+	<select id="selectCountByPositionRole" parameterType="java.util.Map"
+		resultType="java.lang.Long">
+		select count(1)
+		from im_position_role
+		<include refid="Base_Search_Condition" />
+	</select>
+
+	<select id="selectRoleByPosition" parameterType="java.util.Map"
+		resultMap="BaseResultInformationMap">
+		select
+		rm.role_id,rm.role_code,rm.active_start_time,rm.active_end_time,
+		rm.role_name,rm.role_type,rm.role_comment,rm.created_time,
+		rm.created_user,rm.updated_time,rm.updated_user,rm.deleted_flg,rm.version_no,
+		pr.user_id,pr.org_id,pr.title_id,pr.concurrent_flg
+		from im_role_mst
+		rm
+		inner join
+		(select
+		ipr.role_id,ps.position_id,ps.user_id,ps.org_id,ps.title_id,ps.concurrent_flg
+		from im_position_role ipr
+		inner join
+		(select
+		position_id,user_id,org_id,title_id,concurrent_flg
+		from im_position
+		where
+		<if test="position.userId != null">
+			user_id = #{position.userId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.orgId != null">
+			org_id = #{position.orgId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.titleId != null">
+			title_id = #{position.titleId,jdbcType=VARCHAR} and
+		</if>
+		deleted_flg = 0
+		) ps
+		on ipr.position_id = ps.position_id
+		where
+		ipr.deleted_flg = 0) pr
+		on rm.role_id = pr.role_id
+		inner join
+		im_role_name_mst rnm
+		on rm.role_id = rnm.role_id
+		where rm.deleted_flg
+		= 0 and
+		rnm.deleted_flg =
+		0
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+
+	<select id="selectRoleCountByPosition" parameterType="java.util.Map"
+		resultType="java.lang.Long">
+		select count(1)
+		from im_role_mst
+		rm
+		inner join
+		(select
+		ipr.role_id,ps.position_id,ps.user_id,ps.org_id,ps.title_id,ps.concurrent_flg
+		from im_position_role ipr
+		inner join
+		(select
+		position_id,user_id,org_id,title_id,concurrent_flg
+		from im_position
+		where
+		<if test="position.userId != null">
+			user_id = #{position.userId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.orgId != null">
+			org_id = #{position.orgId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.titleId != null">
+			title_id = #{position.titleId,jdbcType=VARCHAR} and
+		</if>
+		deleted_flg = 0
+		) ps
+		on ipr.position_id = ps.position_id
+		where
+		ipr.deleted_flg = 0) pr
+		on rm.role_id = pr.role_id
+		inner join
+		im_role_name_mst rnm
+		on rm.role_id = rnm.role_id
+		where rm.deleted_flg
+		= 0 and
+		rnm.deleted_flg =
+		0
+	</select>
+
+	<select id="selectRoleByPositionByLocale" parameterType="java.util.Map"
+		resultMap="BaseResultInformationMap">
+		select
+		rm.role_id,rm.role_code,rm.active_start_time,rm.active_end_time,
+		rnm.role_name,rm.role_type,rm.role_comment,rm.created_time,
+		rm.created_user,rm.updated_time,rm.updated_user,rm.deleted_flg,rm.version_no,
+		rnm.locale,pr.user_id,pr.org_id,pr.title_id,pr.concurrent_flg
+		from
+		im_role_mst
+		rm
+		inner join
+		(select
+		ipr.role_id,ps.position_id,ps.user_id,ps.org_id,ps.title_id,ps.concurrent_flg
+		from im_position_role ipr
+		inner join
+		(select
+		position_id,user_id,org_id,title_id,concurrent_flg
+		from im_position
+		where
+		<if test="position.userId != null">
+			user_id = #{position.userId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.orgId != null">
+			org_id = #{position.orgId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.titleId != null">
+			title_id = #{position.titleId,jdbcType=VARCHAR} and
+		</if>
+		deleted_flg = 0
+		) ps
+		on ipr.position_id = ps.position_id
+		where
+		ipr.deleted_flg = 0) pr
+		on rm.role_id = pr.role_id
+		inner join
+		im_role_name_mst rnm
+		on rm.role_id = rnm.role_id
+		where rm.deleted_flg
+		= 0 and
+		<if test="locale != null">
+			rnm.locale = #{locale,jdbcType=VARCHAR} and
+		</if>
+		rnm.deleted_flg = 0
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+
+
+	<select id="selectRoleCountByPositionByLocale" parameterType="java.util.Map"
+		resultType="java.lang.Long">
+		select count(1)
+		from
+		im_role_mst
+		rm
+		inner join
+		(select
+		ipr.role_id,ps.position_id,ps.user_id,ps.org_id,ps.title_id,ps.concurrent_flg
+		from im_position_role ipr
+		inner join
+		(select
+		position_id,user_id,org_id,title_id,concurrent_flg
+		from im_position
+		where
+		<if test="position.userId != null">
+			user_id = #{position.userId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.orgId != null">
+			org_id = #{position.orgId,jdbcType=VARCHAR} and
+		</if>
+		<if test="position.titleId != null">
+			title_id = #{position.titleId,jdbcType=VARCHAR} and
+		</if>
+		deleted_flg = 0
+		) ps
+		on ipr.position_id = ps.position_id
+		where
+		ipr.deleted_flg = 0) pr
+		on rm.role_id = pr.role_id
+		inner join
+		im_role_name_mst rnm
+		on rm.role_id = rnm.role_id
+		where rm.deleted_flg
+		= 0 and
+		<if test="locale != null">
+			rnm.locale = #{locale,jdbcType=VARCHAR} and
+		</if>
+		rnm.deleted_flg = 0
+	</select>
+
+	<select id="selectByPositionRoleCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position_role
+		where position_role_code =
+		#{positionRoleCode,jdbcType=VARCHAR}
+		and deleted_flg = 0
+		order by
+		updated_time desc ,created_time desc
+	</select>
+
+	<select id="selectByRoleId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position_role
+		where role_id = #{roleId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectByPositionId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position_role
+		where position_id =
+		#{positionId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_position_role
+		where
+		position_role_code = #{positionRoleCode,jdbcType=VARCHAR}
+	</select>
+
+	<delete id="deleteByPositionRoleIdByVersion">
+		delete from
+		im_position_role
+		where
+		<if test="positionRoleId != null">
+			position_role_id = #{positionRoleId,jdbcType=VARCHAR}
+		</if>
+		<if test="roleId != null">
+			and role_id = #{roleId,jdbcType=VARCHAR}
+		</if>
+		<if test="versionNo != null">
+			and version_no = #{versionNo,jdbcType=NUMERIC}
+		</if>
+	</delete>
+
+	<delete id="deleteByRoleId" parameterType="java.lang.String">
+		delete from
+		im_position_role
+		where role_id = #{roleId,jdbcType=VARCHAR}
+	</delete>
+
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.roleinfo.entity.ImPositionRole">
+		insert into im_position_role (position_role_id,
+		position_role_code,
+		position_id, role_id, active_start_time,
+		active_end_time, created_time, created_user,
+		deleted_flg,
+		version_no)
+		values
+		(#{positionRoleId,jdbcType=VARCHAR},
+		#{positionRoleCode,jdbcType=VARCHAR},
+		#{positionId,jdbcType=VARCHAR},
+		#{roleId,jdbcType=VARCHAR}, #{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC},
+		#{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_position_role
+		<set>
+			<if test="positionRole.positionRoleCode != null">
+				position_role_code =
+				#{positionRole.positionRoleCode,jdbcType=VARCHAR},
+			</if>
+			<if test="positionRole.positionId != null">
+				position_id =
+				#{positionRole.positionId,jdbcType=VARCHAR},
+			</if>
+			<if test="positionRole.roleId != null">
+				role_id = #{positionRole.roleId,jdbcType=VARCHAR},
+			</if>
+			<if test="positionRole.activeStartTime != null">
+				active_start_time =
+				#{positionRole.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="positionRole.activeEndTime != null">
+				active_end_time =
+				#{positionRole.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="positionRole.createdTime != null">
+				created_time =
+				#{positionRole.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="positionRole.createdUser != null">
+				created_user =
+				#{positionRole.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="positionRole.updatedTime != null">
+				updated_time =
+				#{positionRole.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="positionRole.updatedUser != null">
+				updated_user =
+				#{positionRole.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="positionRole.deletedFlg != null">
+				deleted_flg =
+				#{positionRole.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="positionRole.versionNo != null">
+				version_no =
+				#{positionRole.versionNo,jdbcType=NUMERIC}
+			</if>
+		</set>
+		where position_role_id =
+		#{positionRole.positionRoleId,jdbcType=VARCHAR}
+		and
+		<if test="versionBase != null">
+			version_no =
+			#{versionBase,jdbcType=NUMERIC}
+			and
+		</if>
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_position_role
+		set position_role_code =
+		#{positionRole.positionRoleCode,jdbcType=VARCHAR},
+		position_id =
+		#{positionRole.positionId,jdbcType=VARCHAR},
+		role_id =
+		#{positionRole.roleId,jdbcType=VARCHAR},
+		active_start_time =
+		#{positionRole.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{positionRole.activeEndTime,jdbcType=TIMESTAMP},
+		updated_time =
+		#{positionRole.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{positionRole.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{positionRole.versionNo,jdbcType=NUMERIC}
+		where position_role_id =
+		#{positionRole.positionRoleId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

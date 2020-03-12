@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.orguserinfo.mapper.ImPositionMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.orguserinfo.entity.ImPosition">
+		<id column="position_id" jdbcType="VARCHAR" property="positionId" />
+		<result column="position_code" jdbcType="VARCHAR" property="positionCode" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="org_id" jdbcType="VARCHAR" property="orgId" />
+		<result column="title_id" jdbcType="VARCHAR" property="titleId" />
+		<result column="concurrent_flg" jdbcType="NUMERIC" property="concurrentFlg" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		position_id, position_code, user_id, org_id, title_id,
+		concurrent_flg,
+		active_start_time,
+		active_end_time, created_time,
+		created_user, updated_time, updated_user, deleted_flg,
+		version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+		where
+		<if test="positionMst.positionCode != null">
+			position_code like
+			CONCAT('%',#{positionMst.positionCode,jdbcType=VARCHAR},'%') and
+		</if>
+		<if test="positionMst.userId != null">
+			user_id = #{positionMst.userId,jdbcType=VARCHAR} and
+		</if>
+		<if test="positionMst.orgId != null">
+			org_id = #{positionMst.orgId,jdbcType=VARCHAR} and
+		</if>
+		<if test="positionMst.titleId != null">
+			title_id = #{positionMst.titleId,jdbcType=VARCHAR} and
+		</if>
+		<if test="positionMst.concurrentFlg != null">
+			concurrent_flg =
+			#{positionMst.concurrentFlg,jdbcType=NUMERIC} and
+		</if>
+		<if test="positionMst.activeEndTime != null">
+			active_start_time &lt;=
+			#{positionMst.activeEndTime,jdbcType=TIMESTAMP} and
+		</if>
+		<if test="positionMst.activeStartTime != null">
+			active_end_time &gt;=
+			#{positionMst.activeStartTime,jdbcType=TIMESTAMP} and
+		</if>
+		deleted_flg = 0
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where position_id = #{positionId,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByPosition" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		<include refid="Base_Search_Condition" />
+		<if test="sort != null">
+			order by
+			<foreach item="item" collection="sort" separator=",">
+				${item.property} ${item.direction}
+			</foreach>
+		</if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+
+	<select id="selectCountByPosition" parameterType="java.util.Map"
+		resultType="java.lang.Long">
+		select count(1)
+		from im_position
+		<include refid="Base_Search_Condition" />
+	</select>
+
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_position
+		where position_code
+		= #{positionCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByTitleId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where title_id = #{titleId,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectByPositionCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where position_code =
+		#{positionCode,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectPositionByOther" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where user_id = #{userId,jdbcType=VARCHAR}
+		and org_id
+		= #{orgId,jdbcType=VARCHAR}
+		and
+		<if test="titleId != null">
+			title_id = #{titleId,jdbcType=VARCHAR}
+			and
+		</if>
+		<if test="concurrentFlg != null">
+			concurrent_flg = #{concurrentFlg,jdbcType=NUMERIC}
+			and
+		</if>
+		deleted_flg = 0
+	</select>
+
+	<select id="selectByOrgId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where org_id = #{orgId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+
+	<select id="selectByUserId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_position
+		where user_id = #{userId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+
+	<delete id="deleteByPositionIdByVersion">
+		delete from im_position
+		where position_id =
+		#{positionId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		im_position
+		where position_id = #{positionId,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.orguserinfo.entity.ImPosition">
+		insert into im_position (position_id, position_code,
+		user_id,
+		org_id, title_id, concurrent_flg,
+		active_start_time,
+		active_end_time, created_time,
+		created_user, updated_time,
+		updated_user,
+		deleted_flg, version_no)
+		values
+		(#{positionId,jdbcType=VARCHAR}, #{positionCode,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{orgId,jdbcType=VARCHAR},
+		#{titleId,jdbcType=VARCHAR}, #{concurrentFlg,jdbcType=NUMERIC},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP},
+		#{createdTime,jdbcType=TIMESTAMP},
+		#{createdUser,jdbcType=VARCHAR},
+		#{updatedTime,jdbcType=TIMESTAMP}, #{updatedUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC}, #{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_position
+		<set>
+			<if test="position.positionCode != null">
+				position_code =
+				#{position.positionCode,jdbcType=VARCHAR},
+			</if>
+			<if test="position.userId != null">
+				user_id = #{position.userId,jdbcType=VARCHAR},
+			</if>
+			<if test="position.orgId != null">
+				org_id = #{position.orgId,jdbcType=VARCHAR},
+			</if>
+			<if test="position.titleId != null">
+				title_id = #{position.titleId,jdbcType=VARCHAR},
+			</if>
+			<if test="position.concurrentFlg != null">
+				concurrent_flg =
+				#{position.concurrentFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="position.activeStartTime != null">
+				active_start_time =
+				#{position.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="position.activeEndTime != null">
+				active_end_time =
+				#{position.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="position.createdTime != null">
+				created_time =
+				#{position.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="position.createdUser != null">
+				created_user = #{position.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="position.updatedTime != null">
+				updated_time =
+				#{position.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="position.updatedUser != null">
+				updated_user = #{position.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="position.deletedFlg != null">
+				deleted_flg = #{position.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="position.versionNo != null">
+				version_no = #{position.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where position_id = #{position.positionId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no = #{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_position
+		set position_code =
+		#{position.positionCode,jdbcType=VARCHAR},
+		user_id =
+		#{position.userId,jdbcType=VARCHAR},
+		org_id =
+		#{position.orgId,jdbcType=VARCHAR},
+		title_id =
+		#{position.titleId,jdbcType=VARCHAR},
+		concurrent_flg =
+		#{position.concurrentFlg,jdbcType=NUMERIC},
+		active_start_time =
+		#{position.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{position.activeEndTime,jdbcType=TIMESTAMP},
+		updated_time =
+		#{position.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{position.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{position.versionNo,jdbcType=NUMERIC}
+		where position_id =
+		#{position.positionId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

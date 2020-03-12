@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.orguserinfo.mapper.ImUserMstMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.orguserinfo.entity.ImUserMst">
+		<id column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="user_code" jdbcType="VARCHAR" property="userCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="user_name" jdbcType="VARCHAR" property="userName" />
+		<result column="mail" jdbcType="VARCHAR" property="mail" />
+		<result column="tel" jdbcType="VARCHAR" property="tel" />
+		<result column="fax" jdbcType="VARCHAR" property="fax" />
+		<result column="locale" jdbcType="VARCHAR" property="locale" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		user_id, user_code, active_start_time, active_end_time,
+		user_name, mail, tel,
+		fax,
+		locale, created_time, created_user,
+		updated_time, updated_user, deleted_flg,
+		version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+	    where
+        <if test="userMst.userCode != null">
+            user_code like CONCAT('%',
+            #{userMst.userCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.activeEndTime != null">
+            active_start_time &lt;=
+            #{userMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="userMst.activeStartTime != null">
+            active_end_time &gt;=
+            #{userMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="userMst.userName != null">
+            user_name like CONCAT('%',
+            #{userMst.userName,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="userMst.mail != null">
+            mail like CONCAT('%',
+            #{userMst.mail,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.tel != null">
+            tel like CONCAT('%',
+            #{userMst.tel,jdbcType=VARCHAR},
+            '%')
+            and
+        </if>
+        <if test="userMst.fax != null">
+            fax like CONCAT('%',
+            #{userMst.fax,jdbcType=VARCHAR},
+            '%')
+            and
+        </if>
+        <if test="userMst.locale != null">
+            locale like CONCAT('%',
+            #{userMst.locale,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        deleted_flg = 0
+	</sql>
+    <sql id="Locale_Search_Condition">
+        where
+        <if test="userMst.userCode != null">
+            u.user_code like CONCAT('%',
+            #{userMst.userCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.activeEndTime != null">
+            u.active_start_time &lt;=
+            #{userMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="userMst.activeStartTime != null">
+            u.active_end_time &gt;=
+            #{userMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="userMst.userName != null">
+            un.user_name like CONCAT('%',
+            #{userMst.userName,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="userMst.mail != null">
+            u.mail like CONCAT('%',
+            #{userMst.mail,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.tel != null">
+            u.tel like CONCAT('%',
+            #{userMst.tel,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.fax != null">
+            u.fax like CONCAT('%',
+            #{userMst.fax,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="userMst.locale != null">
+            u.locale like CONCAT('%',
+            #{userMst.locale,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        u.user_id = un.user_id and
+        u.deleted_flg = 0 and
+        un.locale =
+        #{locale,jdbcType=VARCHAR} and
+        un.deleted_flg = 0
+    </sql>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_mst
+		where user_id = #{userId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_user_mst
+		where user_code =
+		#{userCode,jdbcType=VARCHAR}
+	</select>
+
+	<delete id="deleteByUserIdByVersion">
+		delete from im_user_mst
+		where user_id =
+		#{userId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+
+	<select id="selectByUserCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_mst
+		where user_code = #{userCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+		order by updated_time desc,created_time desc
+	</select>
+
+	<select id="selectByUserIdByLocale" resultMap="BaseResultMap">
+		select u.user_id,
+		u.user_code, u.active_start_time, u.active_end_time,
+		un.user_name,
+		u.mail, u.tel, u.fax,
+		u.locale, u.created_time, u.created_user,
+		u.updated_time, u.updated_user,
+		u.deleted_flg, u.version_no
+		from
+		im_user_mst u,im_user_name_mst un
+		where u.user_id = un.user_id
+		and
+		u.user_id = #{userId,jdbcType=VARCHAR}
+		and u.deleted_flg = 0
+		and
+		un.locale = #{locale,jdbcType=VARCHAR}
+		and un.deleted_flg = 0
+	</select>
+
+	<select id="selectByUserCodeByLocale" resultMap="BaseResultMap">
+		select
+		u.user_id, u.user_code, u.active_start_time, u.active_end_time,
+		un.user_name, u.mail, u.tel, u.fax,
+		u.locale, u.created_time,
+		u.created_user, u.updated_time, u.updated_user,
+		u.deleted_flg,
+		u.version_no
+		from im_user_mst u,im_user_name_mst un
+		where u.user_id
+		= un.user_id
+		and u.user_code = #{userCode,jdbcType=VARCHAR}
+		and
+		u.deleted_flg = 0
+		and un.locale = #{locale,jdbcType=VARCHAR}
+		and
+		un.deleted_flg = 0
+	</select>
+
+	<select id="selectByUserMstByLocale" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select u.user_id, u.user_code, u.active_start_time, u.active_end_time,
+		un.user_name, u.mail, u.tel, u.fax,
+		u.locale, u.created_time,
+		u.created_user, u.updated_time, u.updated_user,
+		u.deleted_flg,
+		u.version_no
+		from im_user_mst u,im_user_name_mst un
+		<include refid="Locale_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByUserMstByLocale" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_user_mst u,im_user_name_mst un
+        <include refid="Locale_Search_Condition" />
+    </select>
+
+	<select id="selectByUserMst" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_user_mst
+		<include refid="Base_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByUserMst" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_user_mst
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		im_user_mst
+		where user_id = #{userId,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.orguserinfo.entity.ImUserMst">
+		insert into im_user_mst (user_id, user_code,
+		active_start_time,
+		active_end_time, user_name, mail,
+		tel, fax, locale,
+		created_time,
+		created_user, updated_time, updated_user,
+		deleted_flg,
+		version_no)
+		values (#{userId,jdbcType=VARCHAR},
+		#{userCode,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP}, #{userName,jdbcType=VARCHAR},
+		#{mail,jdbcType=VARCHAR},
+		#{tel,jdbcType=VARCHAR},
+		#{fax,jdbcType=VARCHAR}, #{locale,jdbcType=VARCHAR},
+		#{createdTime,jdbcType=TIMESTAMP},
+		#{createdUser,jdbcType=VARCHAR},
+		#{updatedTime,jdbcType=TIMESTAMP}, #{updatedUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC}, #{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_user_mst
+		<set>
+			<if test="userMst.userCode != null">
+				user_code = #{userMst.userCode,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.activeStartTime != null">
+				active_start_time =
+				#{userMst.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userMst.activeEndTime != null">
+				active_end_time =
+				#{userMst.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userMst.userName != null">
+				user_name = #{userMst.userName,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.mail != null">
+				mail = #{userMst.mail,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.tel != null">
+				tel = #{userMst.tel,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.fax != null">
+				fax = #{userMst.fax,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.locale != null">
+				locale = #{userMst.locale,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.createdTime != null">
+				created_time = #{userMst.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userMst.createdUser != null">
+				created_user = #{userMst.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.updatedTime != null">
+				updated_time = #{userMst.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userMst.updatedUser != null">
+				updated_user = #{userMst.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="userMst.deletedFlg != null">
+				deleted_flg = #{userMst.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="userMst.versionNo != null">
+				version_no = #{userMst.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where user_id = #{userMst.userId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and version_no =
+			#{versionBase,jdbcType=NUMERIC}
+		</if>
+		and deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_user_mst
+		set user_code = #{userMst.userCode,jdbcType=VARCHAR},
+		active_start_time = #{userMst.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time = #{userMst.activeEndTime,jdbcType=TIMESTAMP},
+		user_name = #{userMst.userName,jdbcType=VARCHAR},
+		mail =
+		#{userMst.mail,jdbcType=VARCHAR},
+		tel =
+		#{userMst.tel,jdbcType=VARCHAR},
+		fax = #{userMst.fax,jdbcType=VARCHAR},
+		locale = #{userMst.locale,jdbcType=VARCHAR},
+		updated_time =
+		#{userMst.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{userMst.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{userMst.versionNo,jdbcType=NUMERIC}
+		where user_id =
+		#{userMst.userId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and deleted_flg = 0
+	</update>
+</mapper>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.orguserinfo.mapper.ImCompanyMstMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.orguserinfo.entity.ImCompanyMst">
+		<id column="company_id" jdbcType="VARCHAR" property="companyId" />
+		<result column="company_code" jdbcType="VARCHAR" property="companyCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="company_name" jdbcType="VARCHAR" property="companyName" />
+		<result column="company_type" jdbcType="VARCHAR" property="companyType" />
+		<result column="company_comment" jdbcType="VARCHAR" property="companyComment" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		company_id, company_code, active_start_time,
+		active_end_time, company_name,
+		company_type,
+		company_comment,
+		created_time, created_user, updated_time, updated_user
+		, deleted_flg,
+		version_no
+	</sql>
+	<sql id="Base_Search_Condition">
+	    where
+        <if test="companyMst.companyCode != null">
+            company_code like CONCAT('%',
+            #{companyMst.companyCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="companyMst.activeEndTime != null">
+            active_start_time &lt;=
+            #{companyMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="companyMst.activeStartTime != null">
+            active_end_time &gt;=
+            #{companyMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="companyMst.companyName != null">
+            company_name like CONCAT('%',
+            #{companyMst.companyName,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="companyMst.companyType != null">
+            company_type like CONCAT('%',
+            #{companyMst.companyType,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="companyMst.companyComment != null">
+            company_comment like CONCAT('%',
+            #{companyMst.companyComment,jdbcType=VARCHAR}, '%') and
+        </if>
+         deleted_flg = 0
+	</sql>
+	<sql id="Locale_Search_Condition">
+	    where
+        <if test="companyMst.companyCode != null">
+            c.company_code like CONCAT('%',
+            #{companyMst.companyCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="companyMst.activeEndTime != null">
+            c.active_start_time &lt;=
+            #{companyMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="companyMst.activeStartTime != null">
+            c.active_end_time &gt;=
+            #{companyMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="companyMst.companyName != null">
+            n.company_name like CONCAT('%',
+            #{companyMst.companyName,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="companyMst.companyType != null">
+            c.company_type like CONCAT('%',
+            #{companyMst.companyType,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="companyMst.companyComment != null">
+            c.company_comment like CONCAT('%',
+            #{companyMst.companyComment,jdbcType=VARCHAR}, '%') and
+        </if>
+        c.company_id = n.company_id
+        and n.locale = #{locale,jdbcType=VARCHAR}
+        and c.deleted_flg = 0
+        and n.deleted_flg = 0
+	</sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_mst
+		where company_id = #{companyId,jdbcType=VARCHAR}
+		and deleted_flg = 0
+	</select>
+
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_company_mst
+		where
+		company_code = #{companyCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByCompanyCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_mst
+		where company_code =
+		#{companyCode,jdbcType=VARCHAR}
+		and deleted_flg = 0
+		order by
+		updated_time desc,created_time desc
+	</select>
+
+	<select id="selectByCompanyIdByLocale" resultMap="BaseResultMap">
+		select
+		c.company_id, c.company_code, c.active_start_time, c.active_end_time,
+		n.company_name, c.company_type,
+		c.company_comment, c.created_time,
+		c.created_user, c.updated_time, c.updated_user,
+		c.deleted_flg,c.version_no
+		from im_company_mst
+		c,im_company_name_mst n
+		where c.company_id = n.company_id
+		and
+		c.company_id = #{companyId,jdbcType=VARCHAR}
+		and c.deleted_flg = 0
+		and
+		n.locale = #{locale,jdbcType=VARCHAR}
+		and n.deleted_flg = 0
+	</select>
+
+	<select id="selectByCompanyCodeByLocale" resultMap="BaseResultMap">
+		select
+		c.company_id, c.company_code, c.active_start_time, c.active_end_time,
+		n.company_name, c.company_type,
+		c.company_comment, c.created_time,
+		c.created_user, c.updated_time, c.updated_user,
+		c.deleted_flg,c.version_no
+		from im_company_mst
+		c,im_company_name_mst n
+		where c.company_id = n.company_id
+		and
+		c.company_code = #{companyCode,jdbcType=VARCHAR}
+		and c.deleted_flg = 0
+		and n.locale = #{locale,jdbcType=VARCHAR}
+		and n.deleted_flg = 0
+	</select>
+
+	<select id="selectByCompanyMstByLocale" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		c.company_id, c.company_code, c.active_start_time,
+		c.active_end_time,
+		n.company_name, c.company_type,
+		c.company_comment,
+		c.created_time, c.created_user, c.updated_time, c.updated_user,
+		c.deleted_flg,c.version_no
+		from im_company_mst c, im_company_name_mst n
+        <include refid="Locale_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+    <select id="selectCountByCompanyMstByLocale" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_company_mst c, im_company_name_mst n
+        <include refid="Locale_Search_Condition" />
+    </select>
+
+	<select id="selectByCompanyMst" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_company_mst
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+            order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	<select id="selectCountByCompanyMst" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_company_mst
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		im_company_mst
+		where company_id = #{companyId,jdbcType=VARCHAR}
+	</delete>
+
+	<delete id="deleteByCompanyIdByVersion">
+		delete from im_company_mst
+		where company_id =
+		#{companyId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+
+
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.orguserinfo.entity.ImCompanyMst">
+		insert into im_company_mst (company_id, company_code,
+		active_start_time,
+		active_end_time, company_name, company_type,
+		company_comment, created_time, created_user,
+		updated_time,
+		updated_user, deleted_flg,
+		version_no)
+		values
+		(#{companyId,jdbcType=VARCHAR}, #{companyCode,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP}, #{companyName,jdbcType=VARCHAR},
+		#{companyType,jdbcType=VARCHAR},
+		#{companyComment,jdbcType=VARCHAR},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{updatedTime,jdbcType=TIMESTAMP}, #{updatedUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC},
+		#{versionNo,jdbcType=NUMERIC})
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_company_mst
+		<set>
+			<if test="companyMst.companyCode != null">
+				company_code =
+				#{companyMst.companyCode,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.activeStartTime != null">
+				active_start_time =
+				#{companyMst.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyMst.activeEndTime != null">
+				active_end_time =
+				#{companyMst.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyMst.companyName != null">
+				company_name =
+				#{companyMst.companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.companyType != null">
+				company_type =
+				#{companyMst.companyType,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.companyComment != null">
+				company_comment =
+				#{companyMst.companyComment,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.createdTime != null">
+				created_time =
+				#{companyMst.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyMst.createdUser != null">
+				created_user =
+				#{companyMst.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.updatedTime != null">
+				updated_time =
+				#{companyMst.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="companyMst.updatedUser != null">
+				updated_user =
+				#{companyMst.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="companyMst.deletedFlg != null">
+				deleted_flg = #{companyMst.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="companyMst.versionNo != null">
+				version_no = #{companyMst.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where company_id = #{companyMst.companyId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no = #{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_company_mst
+		set company_code =
+		#{companyMst.companyCode,jdbcType=VARCHAR},
+		active_start_time =
+		#{companyMst.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{companyMst.activeEndTime,jdbcType=TIMESTAMP},
+		company_name =
+		#{companyMst.companyName,jdbcType=VARCHAR},
+		company_type =
+		#{companyMst.companyType,jdbcType=VARCHAR},
+		company_comment =
+		#{companyMst.companyComment,jdbcType=VARCHAR},
+		updated_time =
+		#{companyMst.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{companyMst.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{companyMst.versionNo,jdbcType=NUMERIC}
+		where company_id =
+		#{companyMst.companyId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

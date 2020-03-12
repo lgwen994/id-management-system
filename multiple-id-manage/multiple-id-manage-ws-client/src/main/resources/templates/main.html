@@ -1,0 +1,24 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <title>IDMFMaintenance</title>
+</head>
+<body>
+<div id="main">
+  <el-container>
+    <el-header height="100px">
+      <router-view name="header"></router-view>
+    </el-header>
+    <el-main>
+      <router-view></router-view>
+    </el-main>
+    <el-footer height="20px">
+      <p class="hp-copyright text-right small">&copy; 2018 Toshiba Digital Solutions Corporation</p>
+    </el-footer>
+  </el-container>
+</div>
+<script src="./dist/build.js"></script>
+</body>
+</html>

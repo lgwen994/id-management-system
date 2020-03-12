@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.roleinfo.mapper.ImRoleMstMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.roleinfo.entity.ImRoleMst">
+		<id column="role_id" jdbcType="VARCHAR" property="roleId" />
+		<result column="role_code" jdbcType="VARCHAR" property="roleCode" />
+		<result column="active_start_time" jdbcType="TIMESTAMP"
+			property="activeStartTime" />
+		<result column="active_end_time" jdbcType="TIMESTAMP" property="activeEndTime" />
+		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="role_type" jdbcType="VARCHAR" property="roleType" />
+		<result column="role_comment" jdbcType="VARCHAR" property="roleComment" />
+		<result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+		<result column="created_user" jdbcType="VARCHAR" property="createdUser" />
+		<result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+		<result column="updated_user" jdbcType="VARCHAR" property="updatedUser" />
+		<result column="deleted_flg" jdbcType="NUMERIC" property="deletedFlg" />
+		<result column="version_no" jdbcType="NUMERIC" property="versionNo" />
+		<!-- <result property="extendsMap.key1" jdbcType="VARCHAR" column="testkey" 
+			/> -->
+	</resultMap>
+	<sql id="Base_Column_List">
+		role_id, role_code, active_start_time, active_end_time,
+		role_name, role_type,
+		role_comment,
+		created_time, created_user,
+		updated_time, updated_user, deleted_flg, version_no
+	</sql>
+    <sql id="Base_Search_Condition">
+        where
+        <if test="roleMst.roleCode != null">
+            role_code like CONCAT('%',
+            #{roleMst.roleCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="roleMst.activeEndTime != null">
+            active_start_time &lt;=
+            #{roleMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="roleMst.activeStartTime != null">
+            active_end_time &gt;=
+            #{roleMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="roleMst.roleName != null">
+            role_name like CONCAT('%',
+            #{roleMst.roleName,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="roleMst.roleType != null">
+            role_type like CONCAT('%',
+            #{roleMst.roleType,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="roleMst.roleComment != null">
+            role_comment like CONCAT('%',
+            #{roleMst.roleComment,jdbcType=VARCHAR}, '%') and
+        </if>
+        deleted_flg = 0
+    </sql>
+    <sql id="Locale_Search_Condition">
+        where
+        <if test="roleMst.roleCode != null">
+            role.role_code like CONCAT('%',
+            #{roleMst.roleCode,jdbcType=VARCHAR},
+            '%') and
+        </if>
+        <if test="roleMst.activeEndTime != null">
+            role.active_start_time &lt;=
+            #{roleMst.activeEndTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="roleMst.activeStartTime != null">
+            role.active_end_time &gt;=
+            #{roleMst.activeStartTime,jdbcType=TIMESTAMP} and
+        </if>
+        <if test="roleMst.roleName != null">
+            roleNamemst.role_name like CONCAT('%',
+            #{roleMst.roleName,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="roleMst.roleType != null">
+            role.role_type like CONCAT('%',
+            #{roleMst.roleType,jdbcType=VARCHAR}, '%') and
+        </if>
+        <if test="roleMst.roleComment != null">
+            role.role_comment like CONCAT('%',
+            #{roleMst.roleComment,jdbcType=VARCHAR}, '%') and
+        </if>
+        role.deleted_flg = 0 and
+        role.role_id = roleNamemst.role_id and
+        roleNamemst.locale = #{locale,jdbcType=VARCHAR} and
+        roleNamemst.deleted_flg = 0
+    </sql>
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_role_mst
+		where role_id = #{roleId,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+	</select>
+	<select id="selectMaxVersion" parameterType="java.lang.String"
+		resultType="int">
+		select
+		max(version_no)
+		from im_role_mst
+		where role_code =
+		#{roleCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByRoleCode" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_role_mst
+		where role_code = #{roleCode,jdbcType=VARCHAR}
+		and
+		deleted_flg = 0
+		order by updated_time desc,created_time desc
+	</select>
+
+	<select id="selectByRoleMst" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_role_mst
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+        order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	
+	<select id="selectCountByRoleMst" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_role_mst
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<select id="selectByRoleMstByLocale" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		role.role_id, role.role_code, role.active_start_time,
+		role.active_end_time,
+		roleNamemst.role_name, role.role_type,
+		role.role_comment,
+		role.created_time, role.created_user,
+		role.updated_time,
+		role.updated_user, role.deleted_flg, role.version_no
+		from im_role_mst role,im_role_name_mst roleNamemst
+		<include refid="Locale_Search_Condition" />
+		<if test="sort != null">
+        order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+	
+	<select id="selectCountByRoleMstByLocale" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_role_mst role,im_role_name_mst roleNamemst
+        <include refid="Locale_Search_Condition" />
+    </select>
+
+	<select id="selectByRoleCodeByLocale" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		role.role_id, role.role_code, role.active_start_time,
+		role.active_end_time,
+		roleName.role_name, role.role_type,
+		role.role_comment,
+		role.created_time, role.created_user,
+		role.updated_time,
+		role.updated_user, role.deleted_flg, role.version_no
+		from im_role_mst role,im_role_name_mst roleName
+		where
+		role.role_id =
+		roleName.role_id
+		and role.role_code = #{roleCode,jdbcType=VARCHAR}
+		and
+		role.deleted_flg = 0
+		and roleName.locale = #{locale,jdbcType=VARCHAR}
+		and roleName.deleted_flg = 0
+		order by role.updated_time
+		,role.created_time
+	</select>
+
+	<select id="selectByRoleIdByLocale" resultMap="BaseResultMap">
+		select
+		role.role_id, role.role_code, role.active_start_time,
+		role.active_end_time,
+		roleName.role_name, role.role_type,
+		role.role_comment,
+		role.created_time, role.created_user,
+		role.updated_time,
+		role.updated_user, role.deleted_flg, role.version_no
+		from im_role_mst role,im_role_name_mst roleName
+		where
+		role.role_id =
+		roleName.role_id
+		and role.role_id = #{roleId,jdbcType=VARCHAR}
+		and
+		role.deleted_flg = 0
+		and roleName.locale = #{locale,jdbcType=VARCHAR}
+		and roleName.deleted_flg = 0
+	</select>
+
+	<delete id="deleteByRoleIdByVersion">
+		delete from
+		im_role_mst
+		where role_id =
+		#{roleId,jdbcType=VARCHAR}
+		and version_no =
+		#{versionNo,jdbcType=NUMERIC}
+	</delete>
+
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.roleinfo.entity.ImRoleMst">
+		insert into im_role_mst (role_id, role_code,
+		active_start_time,
+		active_end_time, role_name, role_type,
+		role_comment,
+		created_time,
+		created_user,
+		deleted_flg,
+		version_no)
+		<!-- , testkey) -->
+		values (#{roleId,jdbcType=VARCHAR},
+		#{roleCode,jdbcType=VARCHAR},
+		#{activeStartTime,jdbcType=TIMESTAMP},
+		#{activeEndTime,jdbcType=TIMESTAMP}, #{roleName,jdbcType=VARCHAR},
+		#{roleType,jdbcType=VARCHAR},
+		#{roleComment,jdbcType=VARCHAR},
+		#{createdTime,jdbcType=TIMESTAMP}, #{createdUser,jdbcType=VARCHAR},
+		#{deletedFlg,jdbcType=NUMERIC},
+		#{versionNo,jdbcType=NUMERIC})
+		<!-- ,#{extendsMap.key1,jdbcType=VARCHAR}) -->
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="java.util.Map">
+		update im_role_mst
+		<set>
+			<if test="roleMst.roleCode != null">
+				role_code = #{roleMst.roleCode,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.activeStartTime != null">
+				active_start_time =
+				#{roleMst.activeStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roleMst.activeEndTime != null">
+				active_end_time =
+				#{roleMst.activeEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roleMst.roleName != null">
+				role_name = #{roleMst.roleName,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.roleType != null">
+				role_type = #{roleMst.roleType,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.roleComment != null">
+				role_comment = #{roleMst.roleComment,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.createdTime != null">
+				created_time = #{roleMst.createdTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roleMst.createdUser != null">
+				created_user = #{roleMst.createdUser,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.updatedTime != null">
+				updated_time = #{roleMst.updatedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="roleMst.updatedUser != null">
+				updated_user = #{roleMst.updatedUser,jdbcType=VARCHAR},
+			</if>
+			<if test="roleMst.deletedFlg != null">
+				deleted_flg = #{roleMst.deletedFlg,jdbcType=NUMERIC},
+			</if>
+			<if test="roleMst.versionNo != null">
+				version_no = #{roleMst.versionNo,jdbcType=NUMERIC},
+			</if>
+		</set>
+		where role_id = #{roleMst.roleId,jdbcType=VARCHAR}
+		<if test="versionBase != null">
+			and
+			version_no =
+			#{versionBase,jdbcType=NUMERIC}
+		</if>
+		and
+		deleted_flg = 0
+	</update>
+	<update id="updateByPrimaryKey" parameterType="java.util.Map">
+		update
+		im_role_mst
+		set role_code =
+		#{roleMst.roleCode,jdbcType=VARCHAR},
+		active_start_time =
+		#{roleMst.activeStartTime,jdbcType=TIMESTAMP},
+		active_end_time =
+		#{roleMst.activeEndTime,jdbcType=TIMESTAMP},
+		role_name =
+		#{roleMst.roleName,jdbcType=VARCHAR},
+		role_type =
+		#{roleMst.roleType,jdbcType=VARCHAR},
+		role_comment =
+		#{roleMst.roleComment,jdbcType=VARCHAR},
+		updated_time =
+		#{roleMst.updatedTime,jdbcType=TIMESTAMP},
+		updated_user =
+		#{roleMst.updatedUser,jdbcType=VARCHAR},
+		version_no =
+		#{roleMst.versionNo,jdbcType=NUMERIC}
+		where role_id =
+		#{roleMst.roleId,jdbcType=VARCHAR}
+		and
+		version_no =
+		#{versionBase,jdbcType=NUMERIC}
+		and
+		deleted_flg = 0
+	</update>
+</mapper>

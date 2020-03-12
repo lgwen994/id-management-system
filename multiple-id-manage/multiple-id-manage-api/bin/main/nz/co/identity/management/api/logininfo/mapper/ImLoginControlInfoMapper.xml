@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nz.co.identity.management.api.logininfo.mapper.ImLoginControlInfoMapper">
+	<resultMap id="BaseResultMap"
+		type="nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo">
+		<id column="login_id" jdbcType="VARCHAR" property="loginId" />
+		<id column="company_code" jdbcType="VARCHAR" property="companyCode" />
+		<result column="account_inactive_flg" jdbcType="NUMERIC"
+			property="accountInactiveFlg" />
+		<result column="account_active_start_time" jdbcType="TIMESTAMP"
+			property="accountActiveStartTime" />
+		<result column="account_active_end_time" jdbcType="TIMESTAMP"
+			property="accountActiveEndTime" />
+		<result column="password_failure_count" jdbcType="NUMERIC"
+			property="passwordFailureCount" />
+		<result column="password_failure_reset_time" jdbcType="TIMESTAMP"
+			property="passwordFailureResetTime" />
+		<result column="lockout_end_time" jdbcType="TIMESTAMP"
+			property="lockoutEndTime" />
+		<result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		login_id, company_code, account_inactive_flg,
+		account_active_start_time,
+		account_active_end_time,
+		password_failure_count, password_failure_reset_time, lockout_end_time,
+		last_login_time
+	</sql>
+	<sql id="Base_Search_Condition">
+	    <trim prefix="where" prefixOverrides="and|or">
+            <if test="loginControlInfo.companyCode != null">
+                and company_code like CONCAT('%',
+                #{loginControlInfo.companyCode,jdbcType=VARCHAR},
+                '%')
+            </if>
+            <if test="loginControlInfo.accountInactiveFlg != null">
+                and
+                account_inactive_flg =
+                #{loginControlInfo.accountInactiveFlg,jdbcType=NUMERIC}
+            </if>
+            <if test="loginControlInfo.accountActiveStartTime != null">
+                and
+                account_active_end_time &lt;=
+                #{loginControlInfo.accountActiveStartTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="loginControlInfo.accountActiveEndTime != null">
+                and
+                account_active_start_time &gt;=
+                #{loginControlInfo.accountActiveEndTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="loginControlInfo.passwordFailureCount != null">
+                and
+                password_failure_count =
+                #{loginControlInfo.passwordFailureCount,jdbcType=NUMERIC}
+            </if>
+            <if test="loginControlInfo.passwordFailureResetTime != null">
+                and
+                password_failure_reset_time =
+                #{loginControlInfo.passwordFailureResetTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="loginControlInfo.lockoutEndTime != null">
+                and
+                lockout_end_time &lt;=
+                #{loginControlInfo.lockoutEndTime,jdbcType=NUMERIC}
+            </if>
+            <if test="loginControlInfo.lastLoginTime != null">
+                and
+                last_login_time &lt;=
+                #{loginControlInfo.lastLoginTime,jdbcType=NUMERIC}
+            </if>
+        </trim>
+	</sql>   
+	<select id="selectByPrimaryKey"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_login_control_info
+		where login_id =
+		#{loginId,jdbcType=VARCHAR}
+		and company_code =
+		#{companyCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByLoginControlInfo" parameterType="java.util.Map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from im_login_control_info
+        <include refid="Base_Search_Condition" />
+        <if test="sort != null">
+        order by
+            <foreach item="item" collection="sort" separator=",">
+                ${item.property} ${item.direction}
+            </foreach>
+        </if>
+		limit #{pageSize,jdbcType=NUMERIC}
+		<if test="offsetNum > 0">
+			offset #{offsetNum,jdbcType=NUMERIC}
+		</if>
+	</select>
+
+    <select id="selectCountByLoginControlInfo" parameterType="java.util.Map"
+        resultType="java.lang.Long">
+        select count(1)
+        from im_login_control_info
+        <include refid="Base_Search_Condition" />
+    </select>
+
+	<delete id="deleteByPrimaryKey"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo">
+		delete from im_login_control_info
+		where login_id =
+		#{loginId,jdbcType=VARCHAR}
+		and company_code =
+		#{companyCode,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo">
+		insert into im_login_control_info (login_id,
+		company_code,
+		account_inactive_flg,
+		account_active_start_time,
+		account_active_end_time,
+		password_failure_count,
+		password_failure_reset_time,
+		lockout_end_time, last_login_time)
+		values
+		(#{loginId,jdbcType=VARCHAR}, #{companyCode,jdbcType=VARCHAR},
+		#{accountInactiveFlg,jdbcType=NUMERIC},
+		#{accountActiveStartTime,jdbcType=TIMESTAMP},
+		#{accountActiveEndTime,jdbcType=TIMESTAMP},
+		#{passwordFailureCount,jdbcType=NUMERIC},
+		#{passwordFailureResetTime,jdbcType=TIMESTAMP},
+		#{lockoutEndTime,jdbcType=TIMESTAMP},
+		#{lastLoginTime,jdbcType=TIMESTAMP})
+	</insert>
+	<update id="updateByPrimaryKey"
+		parameterType="nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo">
+		update im_login_control_info
+		set account_inactive_flg =
+		#{accountInactiveFlg,jdbcType=NUMERIC},
+		account_active_start_time =
+		#{accountActiveStartTime,jdbcType=TIMESTAMP},
+		account_active_end_time =
+		#{accountActiveEndTime,jdbcType=TIMESTAMP},
+		password_failure_count =
+		#{passwordFailureCount,jdbcType=NUMERIC},
+		password_failure_reset_time =
+		#{passwordFailureResetTime,jdbcType=TIMESTAMP},
+		lockout_end_time =
+		#{lockoutEndTime,jdbcType=TIMESTAMP},
+		last_login_time =
+		#{lastLoginTime,jdbcType=TIMESTAMP}
+		where login_id =
+		#{loginId,jdbcType=VARCHAR}
+		and company_code =
+		#{companyCode,jdbcType=VARCHAR}
+	</update>
+</mapper>
