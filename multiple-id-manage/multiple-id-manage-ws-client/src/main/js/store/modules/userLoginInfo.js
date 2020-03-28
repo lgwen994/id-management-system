@@ -162,7 +162,7 @@ export default {
 		setPage(state, data) {
 			state.page = data;
 		},
-		setSearchResultVisible(state, data) {
+		setSearchResultVisible(state) {
 			state.searchResultVisible = true;
 		},
 		clearSearchForm(state) {
@@ -467,7 +467,7 @@ export default {
                 } else {
                     console.log(error.config);
                 }
-                resolve();
+                //resolve();
             });
         },
         passwordChangeMode(context, data) {

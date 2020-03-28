@@ -109,7 +109,7 @@ export default {
         setEditable(state, data) {
             state.editable = data;
         },
-        setSearchResultVisible(state, data) {
+        setSearchResultVisible(state) {
             state.searchResultVisible = true;
         },
         setLoginPolicyList(state, data) {
@@ -177,7 +177,7 @@ export default {
                 method: 'post',
                 url: '/idmf_login_policies/bulk_delete',
                 data: context.state.selectedList
-            }).then(function(response) {
+            }).then(function() {
                 context.dispatch("searchLoginPolicyList");
             }).catch(function(error) {
                 if(error.response) {
@@ -188,7 +188,7 @@ export default {
                 } else {
                     console.log(error.config);
                 }
-                resolve();
+                //resolve();
             });
         },
         showLoginPolicy(context, loginPolicyId) {

@@ -1,22 +1,23 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.5.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'org.springframework.boot' version '2.2.5.RELEASE'
 }
 
-group = 'com.example'
+group = 'nz.co.identity.management'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
 }
-
+bootJar {
+    baseName = 'multiple-id-manage-ws'
+    version =  '0.1.0'
+}
 dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-security'
-	//implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	//implementation 'org.springframework.boot:spring-boot-starter-web-services'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.1'
 	implementation 'org.apache.commons:commons-csv:1.5'
 	implementation 'commons-beanutils:commons-beanutils:1.9.3'

@@ -79,7 +79,7 @@ export default {
 		},
 		openPositionDialog(context) {
 			context.dispatch('setPage', 1);
-			return context.dispatch('searchPositionList').then(response => {
+			return context.dispatch('searchPositionList').then(() => {
 				context.commit('setPositionDialogVisible', true);
 			});
 		},
@@ -120,16 +120,16 @@ export default {
 				}
 
 				var searchUserTask = [];
-				for(var i = 0; i < userIdList.length; i++) {
-					searchUserTask.push(context.dispatch('searchUser', userIdList[i]));
+				for(var k = 0; k < userIdList.length; k++) {
+					searchUserTask.push(context.dispatch('searchUser', userIdList[k]));
 				}
 				var searchOrgTask = [];
-				for(var i = 0; i < orgIdList.length; i++) {
-					searchOrgTask.push(context.dispatch('searchOrg', orgIdList[i]));
+				for(var j = 0; j < orgIdList.length; j++) {
+					searchOrgTask.push(context.dispatch('searchOrg', orgIdList[j]));
 				}
 				var searchTitleTask = [];
-				for(var i = 0; i < titleIdList.length; i++) {
-					searchTitleTask.push(context.dispatch('searchTitle', titleIdList[i]));
+				for(var l = 0; l < titleIdList.length; l++) {
+					searchTitleTask.push(context.dispatch('searchTitle', titleIdList[l]));
 				}
 				Promise.all(searchUserTask).then((userResponse) => {
 					Promise.all(searchOrgTask).then((orgResponse) => {
@@ -141,15 +141,15 @@ export default {
 										break;
 									}
 								}
-								for(var j = 0; j < orgResponse.length; j++) {
-									if(positionList[i].orgId === orgResponse[j].data.orgId) {
-										positionList[i].orgMst = orgResponse[j].data;
+								for(var k = 0; k < orgResponse.length; k++) {
+									if(positionList[i].orgId === orgResponse[k].data.orgId) {
+										positionList[i].orgMst = orgResponse[k].data;
 										break;
 									}
 								}
-								for(var j = 0; j < titleResponse.length; j++) {
-									if(positionList[i].titleId === titleResponse[j].data.titleId) {
-										positionList[i].titleMst = titleResponse[j].data;
+								for(var l = 0; l < titleResponse.length; l++) {
+									if(positionList[i].titleId === titleResponse[l].data.titleId) {
+										positionList[i].titleMst = titleResponse[l].data;
 										break;
 									}
 								}

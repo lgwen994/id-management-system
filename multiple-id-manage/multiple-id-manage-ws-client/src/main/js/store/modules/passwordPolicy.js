@@ -93,7 +93,7 @@ export default {
         setEditable(state, data) {
             state.editable = data;
         },
-        setSearchResultVisible(state, data) {
+        setSearchResultVisible(state) {
             state.searchResultVisible = true;
         },
         setActiveStartTime(state) {
@@ -143,37 +143,34 @@ export default {
         setPage(context, page) {
             context.commit('setPage', page);
         },
-        registPasswordPolicy(context) {
-            return axios({
+        async registPasswordPolicy(context) {
+            const response = await axios({
                 method: 'post',
                 url: '/idmf_password_policies/',
                 data: {
                     ...context.state.passwordPolicyForm,
                     createdUser: context.rootState.common.user
                 }
-            }).then(function(response) {
-                context.commit("setPasswordPolicyId", response.data.passwordPolicyId);
-                console.log(response);
             });
+            context.commit("setPasswordPolicyId", response.data.passwordPolicyId);
+            console.log(response);
         },
-        deletePasswordPolicy(context) {
-            return axios({
-                method: 'post',
-                url: '/idmf_password_policies/bulk_delete',
-                data: context.state.selectedList
-            }).then(function(response) {
+        async deletePasswordPolicy(context) {
+            try {
                 context.dispatch("searchPasswordPolicyList");
-            }).catch(function(error) {
-                if(error.response) {
+            }
+            catch (error) {
+                if (error.response) {
                     context.commit("setErrorMessage", error.response.data.detail);
                     console.log(error.response.data);
                     console.log(error.response.status);
                     console.log(error.response.headers);
-                } else {
+                }
+                else {
                     console.log(error.config);
                 }
-                resolve();
-            });
+                // resolve();
+            }
         },
         showPasswordPolicy(context, passwordPolicyId) {
             axios({
@@ -193,27 +190,26 @@ export default {
                 }
             });
         },
-        updatePasswordPolicy(context) {
-            return axios({
+        async updatePasswordPolicy(context) {
+            const response = await axios({
                 method: 'put',
                 url: '/idmf_password_policies/',
                 data: {
                     "passwordPolicyId": context.state.passwordPolicyForm.passwordPolicyId,
                     "passwordPolicyCode": context.state.passwordPolicyForm.passwordPolicyCode,
                     "companyCode": context.state.passwordPolicyForm.companyCode,
-                    "activeStartTime" : context.state.passwordPolicyForm.activeStartTime,
-                    "activeEndTime" : context.state.passwordPolicyForm.activeEndTime,
-                    "passwordMinLength" : context.state.passwordPolicyForm.passwordMinLength,
-                    "passwordLetterType" : context.state.passwordPolicyForm.passwordLetterType,
-                    "passwordMinLetterType" : context.state.passwordPolicyForm.passwordMinLetterType,
-                    "passwordInHistory" : context.state.passwordPolicyForm.passwordInHistory,
-                    "versionNo" : context.state.passwordPolicyForm.versionNo
+                    "activeStartTime": context.state.passwordPolicyForm.activeStartTime,
+                    "activeEndTime": context.state.passwordPolicyForm.activeEndTime,
+                    "passwordMinLength": context.state.passwordPolicyForm.passwordMinLength,
+                    "passwordLetterType": context.state.passwordPolicyForm.passwordLetterType,
+                    "passwordMinLetterType": context.state.passwordPolicyForm.passwordMinLetterType,
+                    "passwordInHistory": context.state.passwordPolicyForm.passwordInHistory,
+                    "versionNo": context.state.passwordPolicyForm.versionNo
                 }
-            }).then(function(response) {
-                console.log(response);
-                context.commit("setPasswordPolicyForm", response.data);
-                context.commit('setInitialData', response.data);
             });
+            console.log(response);
+            context.commit("setPasswordPolicyForm", response.data);
+            context.commit('setInitialData', response.data);
         },
         searchPasswordPolicyList(context) {
             return context.dispatch('searchPasswordPolicy').then((response) => {

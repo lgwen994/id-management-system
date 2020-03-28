@@ -10,4 +10,4 @@
 rootProject.name = 'multiple-id-manage'
 include 'multiple-id-manage-api'
 include 'multiple-id-manage-ws'
-include 'multiple-id-manage-ws-client'
+//include 'multiple-id-manage-ws-client'

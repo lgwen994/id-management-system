@@ -86,7 +86,7 @@ export default {
         setRuleSize(state, data) {
             state.ruleSize = data;
         },
-        setSearchResultVisible(state, data) {
+        setSearchResultVisible(state) {
             state.searchResultVisible = true;
         },
         setErrorMessage(state, data){
@@ -115,18 +115,17 @@ export default {
         resetForm(context) {
             context.commit('setPolicyForm', context.state.initialData);
         },
-        registPolicy(context) {
-            return axios({
+        async registPolicy(context) {
+            const response = await axios({
                 method: 'post',
                 url: '/idmf_policies/',
                 data: {
                     ...context.state.policyForm,
                     createdUser: context.rootState.common.user
                 }
-            }).then(function(response) {
-                context.commit('setPolicyId', response.data.policyId);
-                console.log(response);
             });
+            context.commit('setPolicyId', response.data.policyId);
+            console.log(response);
         },
         setPage(context, page) {
             context.commit('setPage', page);
@@ -134,20 +133,19 @@ export default {
         setPageRule(context, page) {
             context.commit('setPageRule', page);
         },
-        showPolicy(context, policyId) {
-            return axios({
+        async showPolicy(context, policyId) {
+            const response = await axios({
                 method: 'get',
                 url: '/idmf_policies/' + policyId
-            }).then(function(response) {
-                context.commit('setPolicyForm', response.data);
-                context.commit('setInitialData', response.data);
-                console.log(response.data);
-                context.commit('setPageRule', 1);
-                context.dispatch('searchRuleList', policyId);
             });
+            context.commit('setPolicyForm', response.data);
+            context.commit('setInitialData', response.data);
+            console.log(response.data);
+            context.commit('setPageRule', 1);
+            context.dispatch('searchRuleList', policyId);
         },
-        searchRuleList(context, policyId) {
-            return axios({
+        async searchRuleList(context, policyId) {
+            const response = await axios({
                 method: 'post',
                 url: '/idmf_rules/search',
                 data: {
@@ -157,44 +155,40 @@ export default {
                     pageNo: context.state.pageRule,
                     pageSize: 10
                 }
-            }).then(function(response) {
-                context.commit('setRuleList', response.data.data);
-                context.commit('setRuleSize', response.data.paging.total);
             });
+            context.commit('setRuleList', response.data.data);
+            context.commit('setRuleSize', response.data.paging.total);
         },
-        updatePolicy(context) {
-            return axios({
+        async updatePolicy(context) {
+            const response = await axios({
                 method: 'put',
                 url: '/idmf_policies/',
                 data: {
                     "policyId": context.state.policyForm.policyId,
                     "policyCode": context.state.policyForm.policyCode,
                     "effect": context.state.policyForm.effect,
-                    "versionNo" : context.state.policyForm.versionNo
+                    "versionNo": context.state.policyForm.versionNo
                 }
-            }).then(function(response) {
-                console.log(response);
-                context.commit("setPolicyForm", response.data);
-                context.commit('setInitialData', response.data);
             });
+            console.log(response);
+            context.commit("setPolicyForm", response.data);
+            context.commit('setInitialData', response.data);
         },
-        deletePolicy(context) {
-            return axios({
-                method: 'post',
-                url: '/idmf_policies/bulk_delete',
-                data: context.state.selectedList
-            }).then(function(response) {
+        async deletePolicy(context) {
+            try {
                 context.dispatch("searchPolicyList");
-            }).catch(function(error) {
-                if(error.response) {
+            }
+            catch (error) {
+                if (error.response) {
                     context.commit("setErrorMessage", error.response.data.detail);
                     console.log(error.response.data);
                     console.log(error.response.status);
                     console.log(error.response.headers);
-                } else {
+                }
+                else {
                     console.log(error.config);
                 }
-            });
+            }
         },
         searchPolicyList(context) {
             return context.dispatch('searchPolicy').then((response) => {

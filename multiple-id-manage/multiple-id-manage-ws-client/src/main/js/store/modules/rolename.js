@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {formatDate} from '../../common';
-import store from '../store';
+import store from '../';
 
 export default {
 	namespaced: true,
@@ -111,7 +111,7 @@ export default {
 		setEditable(state, data) {
 			state.editable = data;
 		},
-		setSearchResultVisible(state, data) {
+		setSearchResultVisible(state) {
 			state.searchResultVisible = true;
 		},
 		setActiveTime(state) {

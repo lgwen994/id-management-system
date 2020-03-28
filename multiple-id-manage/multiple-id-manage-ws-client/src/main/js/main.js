@@ -1,14 +1,15 @@
-import "babel-polyfill";
-import Vue from 'vue';
-import axios from 'axios';
-import { sync } from 'vuex-router-sync';
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
-import locale from 'element-ui/lib/locale/lang/ja';
-import { Loading } from 'element-ui';
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
 
-import store from './store/store';
-import router from './router';
+import axios from "axios";
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+import locale from "element-ui/lib/locale/lang/ja";
+import { Loading } from "element-ui";
+
+Vue.config.productionTip = false;
 
 Vue.use(ElementUI, {locale});
 
@@ -34,12 +35,10 @@ axios.interceptors.response.use(function (response) {
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
-new Vue({
-	  el: '#main',
-	  store,
-	  router
-	});
-
-const unsync = sync(store, router);
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount("#app");
 
 Vue.config.devtools = true

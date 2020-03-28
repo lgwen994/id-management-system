@@ -76,7 +76,7 @@ export default {
 		setCompanyList(state, data) {
 			state.companyList = data;
 		},
-		setSearchResultVisible(state, data) {
+		setSearchResultVisible(state) {
 			state.searchResultVisible = true;
 		},
 		clearSearchForm(state) {
@@ -228,7 +228,7 @@ export default {
 			context.commit('setSelectedList', data);
 		},
 		deleteCompany(context) {
-			return new Promise((resolve, reject) => {
+			return new Promise((resolve) => {
 				context.commit("setErrorMessage", '');
 				var getCompanyNameListTaskList = [];
 				context.commit('clearDeleteCompanyNameList');
@@ -239,7 +239,7 @@ export default {
                     method: 'post',
                     url: '/idmf_companies/bulk_delete',
                     data: context.state.selectedList
-                }).then(function(response) {
+                }).then(function() {
                     context.dispatch("searchCompanyList");
                     Promise.all(getCompanyNameListTaskList).then(()=> {
                         axios({
@@ -271,7 +271,7 @@ export default {
 			});
 		},
 		getCompanyNameList(context, companyId) {
-			return new Promise((resolve, reject) => {
+			return new Promise((resolve) => {
 				axios({
 					method: 'get',
 					url: '/idmf_company_names/find_by_company/' + companyId

@@ -243,7 +243,7 @@ export default {
 			state.agentEditable = data;
 		},
 		setAgentList(state, data) {
-			data.forEach((value, index, array) => {
+			data.forEach((value, index) => {
 				value = {
 					...value,
 					index,
@@ -289,7 +289,7 @@ export default {
 			state.agentList = [];
 			state.initialAgentList = [];
 		},
-		// 所属の選択情報設定
+		// Position のSelection情報設定
 		setPositionSelectedList(state, data) {
 			state.positionSelectedList = data;
 		},
@@ -302,34 +302,33 @@ export default {
         }
 	},
 	actions: {
-		showPosition(context, positionId) {
+		async showPosition(context, positionId) {
 			context.commit('clearRoleList');
 			context.commit('clearAgentList');
-			return axios({
+			const response = await axios({
 				method: 'get',
 				url: '/idmf_positions/' + positionId
-			}).then(function(response) {
-				console.log(response);
-				let position = response.data;
-				let taskList = [
-					context.dispatch('searchUser', response.data.userId),
-					context.dispatch('searchOrg', response.data.orgId),
-					context.dispatch('searchTitle', response.data.titleId)
-				];
-				Promise.all(taskList).then((response) => {
-					context.commit('setForm', position);
-					context.commit('setInitialData', position);
-					context.commit('setUser', response[0].data);
-					context.commit('setOrg', response[1].data);
-					context.commit('setTitle', response[2].data);
-				});
-				context.dispatch('searchPositionRole', response.data.positionId).then(() => {
-					for(var i=0; i < context.state.positionRoleList.length; i++) {
-						context.dispatch('searchRole', context.state.positionRoleList[i]);
-					}
-				});
-				context.dispatch('searchAgent', response.data.positionId);
 			});
+			console.log(response);
+			let position = response.data;
+			let taskList = [
+				context.dispatch('searchUser', response.data.userId),
+				context.dispatch('searchOrg', response.data.orgId),
+				context.dispatch('searchTitle', response.data.titleId)
+			];
+			Promise.all(taskList).then((response_1) => {
+				context.commit('setForm', position);
+				context.commit('setInitialData', position);
+				context.commit('setUser', response_1[0].data);
+				context.commit('setOrg', response_1[1].data);
+				context.commit('setTitle', response_1[2].data);
+			});
+			context.dispatch('searchPositionRole', response.data.positionId).then(() => {
+				for (var i = 0; i < context.state.positionRoleList.length; i++) {
+					context.dispatch('searchRole', context.state.positionRoleList[i]);
+				}
+			});
+			context.dispatch('searchAgent', response.data.positionId);
 		},
 		searchUser(context, userId) {
 			return axios({
@@ -349,31 +348,29 @@ export default {
 				url: '/idmf_titles/' + titleId
 			});
 		},
-		searchPositionRole(context, positionId) {
-			return axios({
+		async searchPositionRole(context, positionId) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_position_roles/search',
 				data: {
 					positionId
 				}
-			}).then(function(response) {
-				context.commit('setPositionRole', response.data.data);
-				console.log(response);
 			});
+			context.commit('setPositionRole', response.data.data);
+			console.log(response);
 		},
-		searchRole(context, positionRole) {
-			return axios({
+		async searchRole(context, positionRole) {
+			const response = await axios({
 				method: 'get',
 				url: '/idmf_roles/' + positionRole.roleId
-			}).then(function(response) {
-				context.commit('setRole', {role:response.data, positionRole:positionRole});
-				console.log(response);
 			});
+			context.commit('setRole', { role: response.data, positionRole: positionRole });
+			console.log(response);
 		},
 		changeMode(context, data) {
 			context.commit('setEditable', data);
 		},
-		updateRole(context) {
+		async updateRole(context) {
 			let taskList = [];
 			context.state.roleList.forEach(role => {
 				let index = context.state.initialRoleList.findIndex(initialRole => {
@@ -402,12 +399,11 @@ export default {
 				taskList.push(context.dispatch('deletePositionRole', deletePositionRoleList));
 			}
 
-			return Promise.all(taskList).then(() => {
-				context.dispatch('showPosition', context.state.form.positionId);
-			});
+			await Promise.all(taskList);
+			context.dispatch('showPosition', context.state.form.positionId);
 		},
-		updatePositionRole(context, data) {
-			return axios({
+		async updatePositionRole(context, data) {
+			const response = await axios({
 				method: 'put',
 				url: '/idmf_position_roles/',
 				data: {
@@ -419,23 +415,21 @@ export default {
 					activeEndTime: data.activeEndTime,
 					createdUser: context.state.form.createdUser,
 					updatedUser: context.rootState.common.user,
-					versionNo : data.versionNo
+					versionNo: data.versionNo
 				}
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
-		deletePositionRole(context, positionRoleList) {
-			return axios({
+		async deletePositionRole(context, positionRoleList) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_position_roles/bulk_delete',
 				data: positionRoleList
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
-		registPositionRole(context, data) {
-			return axios({
+		async registPositionRole(context, data) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_position_roles/',
 				data: {
@@ -446,12 +440,11 @@ export default {
 					activeEndTime: data.activeEndTime,
 					createdUser: context.rootState.common.user
 				}
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
-		updatePosition(context) {
-			return axios({
+		async updatePosition(context) {
+			const response = await axios({
 				method: 'put',
 				url: '/idmf_positions/',
 				data: {
@@ -464,15 +457,14 @@ export default {
 					activeStartTime: context.state.form.activeStartTime,
 					activeEndTime: context.state.form.activeEndTime,
 					createdUser: context.state.form.createdUser,
-					updatedUser:context.rootState.common.user,
-					versionNo : context.state.form.versionNo
+					updatedUser: context.rootState.common.user,
+					versionNo: context.state.form.versionNo
 				}
-			}).then(function(response) {
-				console.log(response);
-				context.commit('setForm', response.data);
-				context.commit('setInitialData', response.data);
-				context.dispatch('showPosition', response.data.positionId);
 			});
+			console.log(response);
+			context.commit('setForm', response.data);
+			context.commit('setInitialData', response.data);
+			context.dispatch('showPosition', response.data.positionId);
 		},
 		addRole(context, data) {
 			context.commit('addRole', data);
@@ -490,8 +482,8 @@ export default {
 		addTitle(context, data) {
 			context.commit('addTitle', data);
 		},
-		regist(context) {
-			return axios({
+		async regist(context) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_positions/',
 				data: {
@@ -503,10 +495,9 @@ export default {
 					userId: 'I_USER_01',
 					createdUser: context.rootState.common.user
 				}
-			}).then(function(response) {
-				context.commit('setPositionId', response.data.positionId);
-				console.log(response);
 			});
+			context.commit('setPositionId', response.data.positionId);
+			console.log(response);
 		},
 		clearForm(context) {
 			context.commit('clearForm');
@@ -523,28 +514,27 @@ export default {
 		agentChangeMode(context, data) {
 			context.commit('setAgentEditable', data);
 		},
-		searchAgent(context, positionId) {
-			return axios({
+		async searchAgent(context, positionId) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_agents/search',
 				data: {
 					positionId
 				}
-			}).then(function(response) {
-				console.log(response.data);
-				let agentList = response.data.data;
-				let positionIdList = [...new Set(agentList.map(agent => agent.agentedPositionId))];
-				let searchPositionTask = positionIdList.map(positionId => context.dispatch('searchPosition', positionId));
-				Promise.all(searchPositionTask).then(response => {
-					agentList.forEach((agent, index) => {
-						let agentedPosition = response.find(position => {
-							return agent.agentedPositionId === position.data.positionId;
-						});
-						agent.agentedPositionMst = agentedPosition.data;
-						agent.index = index;
+			});
+			console.log(response.data);
+			let agentList = response.data.data;
+			let positionIdList = [...new Set(agentList.map(agent => agent.agentedPositionId))];
+			let searchPositionTask = positionIdList.map(positionId => context.dispatch('searchPosition', positionId));
+			Promise.all(searchPositionTask).then(response_1 => {
+				agentList.forEach((agent, index) => {
+					let agentedPosition = response_1.find(position => {
+						return agent.agentedPositionId === position.data.positionId;
 					});
-					context.commit('setAgentList', agentList);
+					agent.agentedPositionMst = agentedPosition.data;
+					agent.index = index;
 				});
+				context.commit('setAgentList', agentList);
 			});
 		},
 		searchPosition(context, positionId) {
@@ -568,7 +558,7 @@ export default {
 		deleteAgentList(context) {
 			context.commit('deleteAgentList');
 		},
-		updateAgentList(context) {
+		async updateAgentList(context) {
 			let taskList = context.state.agentList.map(agent => {
 				if(agent.agentId === '') {
 					return context.dispatch('registAgent', agent);
@@ -593,68 +583,60 @@ export default {
 				taskList.push(context.dispatch('deleteAgent', deleteAgentList));
 			}
 
-			return Promise.all(taskList).then(() => {
-				context.dispatch('showPosition', context.state.form.positionId);
-			});
+			await Promise.all(taskList);
+			context.dispatch('showPosition', context.state.form.positionId);
 		},
-		updateAgent(context, agent) {
-			return axios({
+		async updateAgent(context, agent) {
+			const response = await axios({
 				method: 'put',
 				url: '/idmf_agents/',
 				data: {
 					...agent,
 					updatedUser: context.rootState.common.user
 				}
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
-		registAgent(context, agent) {
-			return axios({
+		async registAgent(context, agent) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_agents/',
 				data: {
 					...agent,
 					createdUser: context.rootState.common.user
 				}
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
-		deleteAgent(context, agentList) {
-			return axios({
+		async deleteAgent(context, agentList) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_agents/bulk_delete',
 				data: agentList
-			}).then(function(response) {
-				console.log(response);
 			});
+			console.log(response);
 		},
 		resetAgent(context) {
 			context.commit('resetAgent');
 		},
-		// 所属の選択情報を設定
 		setPositionSelectedList(context, data) {
 			context.commit('setPositionSelectedList', data);
 		},
-		// 選択された所属情報を削除
-		deletePosition(context) {
+		async deletePosition(context) {
 			context.state.positionSelectedList.map((element) => {
 				return {
 					...element,
 					updatedUser: context.rootState.common.user
 				}
 			})
-			return axios({
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_positions/bulk_delete',
 				data: context.state.positionSelectedList
-			}).then(function(response) {
-				console.log(response.data);
 			});
+			console.log(response.data);
 		},
-		// Dialogで選択されたユーザ情報を追加
-        addUserOfRegist(context, data) {
+		addUserOfRegist(context, data) {
             context.commit('setUserOfRegist', data);
         }
 	}

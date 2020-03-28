@@ -26,8 +26,8 @@ export function showErrorMessage(error) {
         message = error;
         console.log(error.config);
     }
-    MessageBox.alert(`エラーが発生しました。<br>${message}`, 'エラー', {
-        confirmButtonText: 'OK',
+    MessageBox.alert(`Error is occured <br>${message}`, 'Error', {
+        ConfirmButtonText: 'OK',
         type: 'error',
         dangerouslyUseHTMLString: true
     });

@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {formatDate} from '../../common';
-import store from '../store';
+import store from '../';
 
 export default {
     namespaced: true,
@@ -110,7 +109,6 @@ export default {
         setEditable(state, data) {
             state.editable = data;
         },
-        // エラー情報設定
         setErrorMessage(state, data){
             state.errorMessage = data;
         },
@@ -119,28 +117,26 @@ export default {
         },
     },
     actions: {
-        showResource(context, resourceId) {
-            return axios({
+        async showResource(context, resourceId) {
+            const response = await axios({
                 method: 'get',
                 url: '/idmf_resources/' + resourceId
-            }).then(function(response) {
-                context.commit('setForm', response.data);
-                context.commit('setInitialData', response.data);
-                console.log(response);
-                return axios({
-                    method: 'get',
-                    url: '/idmf_rules/' + response.data.ruleId
-                }).then(function(response) {
-                    context.commit('setRule', response.data);
-                    console.log(response);
-                });
             });
+            context.commit('setForm', response.data);
+            context.commit('setInitialData', response.data);
+            console.log(response);
+            const response_1 = await axios({
+                method: 'get',
+                url: '/idmf_rules/' + response.data.ruleId
+            });
+            context.commit('setRule', response_1.data);
+            console.log(response_1);
         },
         clearForm(context) {
             context.commit('clearForm');
         },
-        updateResource(context) {
-            return axios({
+        async updateResource(context) {
+            const response = await axios({
                 method: 'put',
                 url: '/idmf_resources/',
                 data: {
@@ -150,37 +146,38 @@ export default {
                     "valueType": context.state.form.valueType,
                     "evalType": context.state.form.evalType,
                     "value": context.state.form.value,
-                    "versionNo" : context.state.form.versionNo,
+                    "versionNo": context.state.form.versionNo,
                     updateUser: context.rootState.common.user
                 }
-            }).then(function(response) {
-                console.log(response);
-                context.commit("setForm", response.data);
-                context.commit('setInitialData', response.data);
             });
+            console.log(response);
+            context.commit("setForm", response.data);
+            context.commit('setInitialData', response.data);
         },
-        deleteResource(context) {
-            return axios({
-                method: 'post',
-                url: '/idmf_resources/bulk_delete',
-                data: context.state.resourceSelectedList
-            }).then(function(response) {
+        async deleteResource(context) {
+            try {
+                const response = await axios({
+                    method: 'post',
+                    url: '/idmf_resources/bulk_delete',
+                    data: context.state.resourceSelectedList
+                });
                 console.log(response);
-                context.dispatch('rule/showRule', context.state.form.ruleMst.ruleId, {root: true});
-            }).catch(function(error) {
-                if(error.response) {
+                context.dispatch('rule/showRule', context.state.form.ruleMst.ruleId, { root: true });
+            }
+            catch (error) {
+                if (error.response) {
                     context.commit("setErrorMessage", error.response.data.detail);
                     console.log(error.response.data);
                     console.log(error.response.status);
                     console.log(error.response.headers);
-                } else {
+                }
+                else {
                     console.log(error.config);
                 }
-                resolve();
-            });
+            }
         },
-        registResource(context) {
-            return axios({
+        async registResource(context) {
+            const response = await axios({
                 method: 'post',
                 url: '/idmf_resources/',
                 data: {
@@ -188,10 +185,9 @@ export default {
                     "ruleId": context.state.form.ruleMst.ruleId,
                     createdUser: context.rootState.common.user
                 }
-            }).then(function(response) {
-                context.commit("setResourceId", response.data.resourceId);
-                console.log(response);
             });
+            context.commit("setResourceId", response.data.resourceId);
+            console.log(response);
         },
         setSelectedList(context, data) {
             context.commit('setSelectedList', data);

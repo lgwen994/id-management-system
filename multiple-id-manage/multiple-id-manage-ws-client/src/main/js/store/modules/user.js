@@ -60,40 +60,32 @@ export default {
         sortKey: ''
 	},
     mutations: {
-        // フォーム設定
         setForm(state, data) {
             state.form = {
                 ...data,
             };
         },
-        // 初期データ設定
         setInitialData(state, data) {
             state.initialData = {
                 ...data,
             };
         },
-        // ユーザ名一覧情報設定
-		setUserNameList(state, data) {
+        setUserNameList(state, data) {
 			state.userNameList = data;
 		},
-        // 画面部品制御
-		setEditable(state, data) {
+        setEditable(state, data) {
 			state.editable = data;
 		},
-        // ユーザサイズ設定
-		setUserSize(state, data) {
+        setUserSize(state, data) {
 			state.userSize = data;
 		},
-        // ユーザ一覧情報設定
-		setUserList(state, data) {
+        setUserList(state, data) {
 			state.userList = data;
 		},
-        // 検索結果表示状態設定
-		setSearchResultVisible(state, data) {
+        setSearchResultVisible(state) {
 			state.searchResultVisible = true;
 		},
-        // 検索ドームクリア
-		clearSearchForm(state) {
+        clearSearchForm(state) {
             state.searchForm.userCode = null;
             state.searchForm.activeStartTime = null;
             state.searchForm.activeEndTime = null;
@@ -103,12 +95,10 @@ export default {
             state.searchForm.fax = null;
             state.searchForm.locale = null;
 		},
-        // ユーザID設定
-		setUserId(state, data) {
+        setUserId(state, data) {
 			state.form.userId = data;
 		},
-        // フォームクリア
-		clearForm(state) {
+        clearForm(state) {
             state.form.userId = '';
 			state.form.userCode = '';
 			state.form.activeStartTime = '';
@@ -119,16 +109,13 @@ export default {
             state.form.fax = '';
             state.form.locale = '';
 		},
-        // ページ設定
         setPage(state, data) {
             state.page = data;
         },
-        // 適用開始日設定
-		setActiveStartTime(state) {
+        setActiveStartTime(state) {
 			state.form.activeStartTime = new Date();
 		},
-        // 選択されたユーザ名情報の設定
-		setSelectedList(state, data) {
+        setSelectedList(state, data) {
 			state.selectedList = data;
 		},
 		setDeleteUserNameList(state, data) {
@@ -259,7 +246,7 @@ export default {
 			context.commit('setSelectedList', data);
 		},
         deleteUser(context) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 let deleteUserList = context.state.selectedList.map(user => {
                     return {
                         ...user,
@@ -267,7 +254,6 @@ export default {
                     };
                 });
                 let searchUserNameTask = context.state.selectedList.map(user =>
-                    //context.dispatch('searchUserNameList', user.userId)
                     axios({
 
                         method: 'get',
@@ -300,7 +286,7 @@ export default {
                         }
                         resolve();
                     });
-                }).then(response => {
+                }).then(() => {
                     return axios({
                         method: 'post',
                         url: '/idmf_users/bulk_delete',
@@ -329,7 +315,6 @@ export default {
 				url: '/idmf_user_names/find_by_user/' + userId
 			}).then(function(response) {
 				context.commit('setDeleteUserNameList', response.data);
-				resolve();
 			}).catch(function(error) {
 				if(error.response) {
 					console.log(error.response.data);

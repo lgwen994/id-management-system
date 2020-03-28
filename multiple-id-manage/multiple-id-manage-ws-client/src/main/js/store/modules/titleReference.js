@@ -56,7 +56,7 @@ export default {
             }
 		},
 		addCompany(state, data) {
-			state.titleList[index].companyMst = data;
+			state.titleList[0].companyMst = data;
 		},
 		setScreen(state, data) {
 			state.screen = data;
@@ -91,7 +91,6 @@ export default {
 			}).then(function(response) {
 				context.commit('setTitleSize', response.data.paging.total);
 				console.log(response.data.data);
-				// 参照している会社マスタの情報を取得する
 				var titleList = response.data.data;
 				var companyIdList = []
 				for(var i = 0; i < titleList.length; i++) {
@@ -100,8 +99,8 @@ export default {
 					}
 				}
 				var searchCompanyTask = [];
-				for(var i = 0; i < companyIdList.length; i++) {
-					searchCompanyTask.push(context.dispatch('searchCompany', companyIdList[i]));
+				for(var j = 0; j < companyIdList.length; j++) {
+					searchCompanyTask.push(context.dispatch('searchCompany', companyIdList[j]));
 				}
 				return Promise.all(searchCompanyTask).then((response) => {
 					for(var i = 0; i < titleList.length; i++) {

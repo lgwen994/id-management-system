@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {formatDate} from '../../common';
-import store from '../store';
+import store from '../';
 
 export default {
     namespaced: true,
@@ -110,7 +109,6 @@ export default {
         setEditable(state, data) {
             state.editable = data;
         },
-        // エラー情報設定
         setErrorMessage(state, data){
             state.errorMessage = data;
         },
@@ -176,7 +174,7 @@ export default {
                 } else {
                     console.log(error.config);
                 }
-                resolve();
+                //resolve();
             });
         },
         registCondition(context) {

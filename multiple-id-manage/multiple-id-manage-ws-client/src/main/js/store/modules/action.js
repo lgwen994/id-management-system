@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {formatDate} from '../../common';
-import store from '../store';
+import store from '../';
 
 export default {
     namespaced: true,
@@ -107,7 +106,7 @@ export default {
             state.form.ruleMst.ruleId = data.ruleId;
             state.form.ruleMst.ruleCode = data.ruleCode;
         },
-        // エラー情報設定
+        // Error情報設定
         setErrorMessage(state, data){
             state.errorMessage = data;
         },
@@ -176,7 +175,7 @@ export default {
                 } else {
                     console.log(error.config);
                 }
-                resolve();
+                //resolve();
             });
         },
         registAction(context) {

@@ -97,7 +97,7 @@ export default {
 		setPage(state, data) {
 			state.page = data;
 		},
-		setSearchResultVisible(state, data) {
+		setSearchResultVisible(state) {
 			state.searchResultVisible = true;
 		},
 		clearSearchForm(state) {
@@ -137,17 +137,16 @@ export default {
 		}
     },
     actions: {
-		showRole(context, roleId) {
-			return axios({
+		async showRole(context, roleId) {
+			const response = await axios({
 				method: 'get',
 				url: '/idmf_roles/' + roleId
-			}).then(function(response) {
-				context.commit('setForm', response.data);
-				context.commit('setInitialData', response.data);
-				console.log(response.data);
-				context.dispatch('searchRolenameList', roleId).then((response) => {
-					context.commit('setRolenameList', response.data);
-				});
+			});
+			context.commit('setForm', response.data);
+			context.commit('setInitialData', response.data);
+			console.log(response.data);
+			context.dispatch('searchRolenameList', roleId).then((response_1) => {
+				context.commit('setRolenameList', response_1.data);
 			});
 		},
 		changeMode(context, data) {
@@ -159,28 +158,27 @@ export default {
 				url: '/idmf_role_names/find_by_role/' + roleId
 			});
 		},
-		updateRole(context) {
-			return axios({
+		async updateRole(context) {
+			const response = await axios({
 				method: 'put',
 				url: '/idmf_roles/',
 				data: {
 					roleId: context.state.form.roleId,
 					roleCode: context.state.form.roleCode,
 					activeStartTime: context.state.form.activeStartTime,
-					activeEndTime:context.state.form.activeEndTime,
+					activeEndTime: context.state.form.activeEndTime,
 					roleName: context.state.form.roleName,
 					roleType: context.state.form.roleType,
 					roleComment: context.state.form.roleComment,
 					createdUser: context.state.form.createdUser,
 					updatedUser: context.rootState.common.user,
 					deletedFlg: context.state.form.deletedFlg,
-					versionNo : context.state.form.versionNo
+					versionNo: context.state.form.versionNo
 				}
-			}).then(function(response) {
-				console.log(response);
-				context.commit('setForm', response.data);
-				context.commit('setInitialData', response.data);
 			});
+			console.log(response);
+			context.commit('setForm', response.data);
+			context.commit('setInitialData', response.data);
 		},
 		resetForm(context) {
 			context.commit('setForm', context.state.initialData);
@@ -212,18 +210,17 @@ export default {
 		clearSearchForm(context) {
 			context.commit('clearSearchForm');
 		},
-		registRole(context) {
-			return axios({
+		async registRole(context) {
+			const response = await axios({
 				method: 'post',
 				url: '/idmf_roles/',
 				data: {
 					...context.state.form,
 					createdUser: context.rootState.common.user
 				}
-			}).then(function(response) {
-				context.commit('setRoleId', response.data.roleId);
-				console.log(response);
 			});
+			context.commit('setRoleId', response.data.roleId);
+			console.log(response);
 		},
 		clearForm(context) {
 			context.commit('clearForm');
@@ -235,7 +232,8 @@ export default {
 			context.commit('setSelectedList', data);
 		},
 		deleteRole(context) {
-			let deleteRoleList = context.state.selectedList.map(role => {
+			let deleteRoleList = 
+			context.state.selectedList.map(role => {
 				return {
 					...role,
 					updatedUser: context.rootState.common.user
@@ -260,13 +258,17 @@ export default {
 					url: '/idmf_role_names/bulk_delete',
 					data: deleteRolenameList
 				});
-			}).then(response => {
+			}).then(
+				() => 
+				{
 				return axios({
 					method: 'post',
 					url: '/idmf_roles/bulk_delete',
 					data: deleteRoleList
 				});
-			}).then(response => {
+			}).then(
+				() => 
+				{
 				context.dispatch('searchRoleList');
 			});
 		},
@@ -279,19 +281,18 @@ export default {
 					}
 			});
 		},
-		checkPositionRole(context) {
+		async checkPositionRole(context) {
 			var searchTaskList = [];
 			context.commit('clearReferencedRoleList');
 			for(var i = 0; i < context.state.selectedList.length; i++) {
 				searchTaskList.push(context.dispatch('searchPositionRole', context.state.selectedList[i].roleId));
 			}
-			return Promise.all(searchTaskList).then((response)=> {
-				for(var i = 0; i < response.length; i++) {
-					if(response[i].data.data.length !== 0) {
-						context.commit('setReferencedRoleList', response[i].data.data[0].roleId);
-					}
+			const response = await Promise.all(searchTaskList);
+			for (var i_1 = 0; i_1 < response.length; i_1++) {
+				if (response[i_1].data.data.length !== 0) {
+					context.commit('setReferencedRoleList', response[i_1].data.data[0].roleId);
 				}
-			});
+			}
 		},
 		setSortKey(context, data) {
 			context.commit('setSortKey', data);

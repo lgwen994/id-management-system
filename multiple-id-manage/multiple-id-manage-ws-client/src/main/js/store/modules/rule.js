@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {formatDate} from '../../common';
-import store from '../store';
+import store from '../';
 
 export default {
     namespaced: true,
@@ -112,6 +111,7 @@ export default {
             state.editable = data;
         },
         setSearchResultVisible(state, data) {
+            state.searchResultVisible = data;
             state.searchResultVisible = true;
         },
         setSubjectList(state, data) {
@@ -150,7 +150,6 @@ export default {
         setPageSubject(state, data) {
             state.pageSubject = data;
         },
-        // エラー情報設定
         setErrorMessage(state, data){
             state.errorMessage = data;
         },
@@ -298,7 +297,7 @@ export default {
                 } else {
                     console.log(error.config);
                 }
-                resolve();
+                //resolve();
             });
         },
         registRule(context) {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {formatDate} from '../../common';
+//import {formatDate} from '../../common';
 
 export default {
     namespaced: true,
@@ -58,7 +58,7 @@ export default {
             context.commit('setScreen', screen);
             context.commit('setKbn', kbn);
             context.commit('setPage', 1);
-            return context.dispatch('searchUserList').then(response => {
+            return context.dispatch('searchUserList').then(() => {
             }).then(() => {
                 context.commit('setUserDialogVisible', true);
             });

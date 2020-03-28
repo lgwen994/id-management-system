@@ -24,8 +24,13 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import nz.co.identity.management.api.ImApiConfig;
+import nz.co.identity.management.api.logininfo.entity.ImLoginControlInfo;
 
 /**
  * MstaccessApplication.<br>
@@ -35,23 +40,28 @@ import nz.co.identity.management.api.ImApiConfig;
 @SpringBootApplication
 @Import(ImApiConfig.class)
 //@PropertySource(value = "classpath:staveware-id-manage-api.properties")
-@MapperScan({ "nz.co.identity.management.api.common.mapper",
-        "nz.co.identity.management.api.authzpolicy.mapper",
-        "nz.co.identity.management.api.logininfo.mapper",
-        "nz.co.identity.management.api.orguserinfo.mapper",
-        "nz.co.identity.management.api.roleinfo.mapper" })
+@MapperScan({ "nz.co.identity.management.api.common.mapper", "nz.co.identity.management.api.authzpolicy.mapper",
+		"nz.co.identity.management.api.logininfo.mapper", "nz.co.identity.management.api.orguserinfo.mapper",
+		"nz.co.identity.management.api.roleinfo.mapper" })
+@RestController
 public class ImApplication {
 
-    /**
-     *
-     * main.<br>
-     *
-     * @param args
-     *        arguments
-     *
-     * @since Staveware Core Ver.5.3
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(ImApplication.class, args);
-    }
+	/**
+	 *
+	 * main.<br>
+	 *
+	 * @param args arguments
+	 *
+	 * @since Staveware Core Ver.5.3
+	 */
+	public static void main(String[] args) {
+		SpringApplication.run(ImApplication.class, args);
+	}
+
+	@RequestMapping(value = "/hello", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+	public String hello() {
+		
+		return "hello test";
+
+	}
 }
